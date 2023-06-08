@@ -1,5 +1,11 @@
-const peminjaman = require('./peminjaman')
-const model = {};
+const booksModel = require("./booksModel");
+const siswaModel = require("./siswaModel");
+const peminjamanModel = require("./peminjamanModel");
 
-model.peminjaman = peminjaman;
-module.exports = model;
+const models = {
+  books: booksModel,
+  siswa: siswaModel,
+  peminjaman: peminjamanModel,
+};
+
+module.exports = models;
