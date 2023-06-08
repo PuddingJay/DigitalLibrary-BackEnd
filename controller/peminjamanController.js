@@ -1,10 +1,10 @@
-const model = require('../Config/model/index');
+const models = require('../Config/model/index');
 const controller = {};
 const { Op } = require('sequelize');
 
 controller.getAll = async function (req, res) {
   try {
-    let peminjaman = await model.peminjaman.findAll()
+    let peminjaman = await models.peminjaman.findAll()
     if (peminjaman.length > 0) {
       res.status(200).json({
         message: "Get Method Peminjaman",
@@ -18,14 +18,14 @@ controller.getAll = async function (req, res) {
     }
   } catch (err) {
     res.status(400).json({
-      message: error.message,
+      message: err.message,
     })
   }
 }
 
 controller.getOne = async function (req, res) {
   try {
-    let peminjaman = await model.peminjaman.findAll({
+    let peminjaman = await models.peminjaman.findAll({
       where: {
         idPeminjaman: req.params.nim,
       }
@@ -52,7 +52,7 @@ controller.getOne = async function (req, res) {
 controller.post = async function (req, res) {
   try {
     console.log(req.body);
-    let peminjaman = await model.peminjaman.create(
+    let peminjaman = await models.peminjaman.create(
       {
         idBuku: req.body.idBuku,
         namaPeminjam: req.body.namaPeminjam,
@@ -79,7 +79,7 @@ controller.post = async function (req, res) {
 
 controller.put = async function (req, res) {
   try {
-    let peminjaman = await model.peminjaman.update(
+    let peminjaman = await models.peminjaman.update(
       {
         idBuku: req.body.idBuku,
         namaPeminjam: req.body.namaPeminjam,
@@ -107,7 +107,7 @@ controller.put = async function (req, res) {
 }
 controller.delete = async function (req, res) {
   try {
-    await model.peminjaman.destroy(
+    await models.peminjaman.destroy(
       {
         where: {
           idPeminjaman: req.params.idPeminjaman,
@@ -126,7 +126,7 @@ controller.delete = async function (req, res) {
 controller.getSearch = async function (req, res) {
   const search = req.query.keyword;
   try {
-    let peminjaman = await model.peminjaman.findAll({
+    let peminjaman = await models.peminjaman.findAll({
       attributes: ['idPeminjaman', 'idBuku', 'namaPeminjam', 'judulBuku', 'tglPinjam', 'batasPinjam', 'tglKembali', 'status', 'denda'],
       where: {
         [Op.or]: [{
