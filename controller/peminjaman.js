@@ -1,4 +1,4 @@
-const model = require('../config/model/index');
+const model = require('../Config/model/index');
 const controller = {};
 const { Op } = require('sequelize');
 
