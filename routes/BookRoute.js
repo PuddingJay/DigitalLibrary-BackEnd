@@ -1,70 +1,52 @@
-const express = require("express");
+import express from "express";
+import multer from "multer";
+// import path from "path";
+// import db from "../Config/database/db.js";
+import controller from "../controller/indexController.js";
+import { verifyToken } from '../middleware/verifyToken.js';
+// import { refreshToken } from '../controller/RefreshToken.js'
+
 const router = express.Router();
-const db = require("../Config/database/db");
-const controller = require("../controller/indexController");
-const multer = require("multer");
-const path = require("path");
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    console.log(file)
-    if(file.fieldname == 'cover_buku')
-      cb(null, "./asset/cover"); // Menyimpan file di folder
-    if(file.fieldname == 'file_ebook')
-      cb(null, "./asset/file_ebook")
+    if (file.fieldname === "cover_buku") {
+      cb(null, "./asset/cover");
+    } else if (file.fieldname === "file_ebook") {
+      cb(null, "./asset/file_ebook");
+    }
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname); // Mengatur nama file dengan timestamp
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 
 const upload = multer({ storage: storage });
 
-// router.post("/", upload.single("cover_buku"), controller.booksController.post,
-//   (req, res, next) => {
-//     console.log(req);
-//     res.send("Foto berhasil diupload.");
-//   });
+const storagePdf = multer.diskStorage({
+  destination: function (req, filePdf, cb) {
+    cb(null, "./asset/file_ebook");
+  },
+  filename: function (req, filePdf, cb) {
+    cb(null, Date.now() + "-" + filePdf.originalname);
+  },
+});
 
-
-  const storagePdf = multer.diskStorage({
-    destination: function (req, filePdf, cb) {
-      cb(null, "./asset/file_ebook"); // Menyimpan file di folder
-    },
-    filename: function (req, filePdf, cb) {
-      cb(null, Date.now() + "-" + filePdf.originalname); // Mengatur nama file dengan timestamp
-    },
-  });
-  
-  const uploadPdf = multer({ storage: storagePdf });
-
-// router.post("/", uploadPdf.single("file_ebook"), controller.booksController.post,
-//   (req, res, next) => {
-//     console.log(req);
-//     res.send("Buku digital berhasil diupload.");
-//   });
-
-
+const uploadPdf = multer({ storage: storagePdf });
 
 router.get("/book/:kode_buku", controller.booksController.getOne);
 router.get("/book/", controller.booksController.getAll);
 router.get("/book/:search", controller.booksController.getSearch);
-router.post("/book/", upload.fields([
-  {
-    name: 'cover_buku', maxCount: 1
-  },
-  {
-    name: 'file_ebook', maxCount: 1
-  }
-]),  controller.booksController.post);
-
-router.put("/book/:kode_buku", upload.fields([
-  {
-    name : 'cover_buku', maxCount: 1
-  }, 
-  {
-    name : 'file_ebook', maxCount : 1
-  }
-]), controller.booksController.put);
+router.post(
+  "/book/",
+  upload.fields([{ name: "cover_buku", maxCount: 1 }, { name: "file_ebook", maxCount: 1 }]),
+  controller.booksController.post
+);
+router.put(
+  "/book/:kode_buku",
+  upload.fields([{ name: "cover_buku", maxCount: 1 }, { name: "file_ebook", maxCount: 1 }]),
+  controller.booksController.put
+);
 router.delete("/book/:kode_buku", controller.booksController.delete);
 
 router.get("/siswa/:NIS", controller.siswaController.getOne);
@@ -74,11 +56,16 @@ router.post("/siswa/", controller.siswaController.post);
 router.put("/siswa/:NIS", controller.siswaController.put);
 router.delete("/siswa/:NIS", controller.siswaController.delete);
 
-router.get('/peminjaman/', controller.peminjamanController.getAll);
-router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne);
-router.post('/peminjaman/', controller.peminjamanController.post);
-router.put('/peminjaman/:idPeminjaman', controller.peminjamanController.put);
-router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delete);
+router.get("/peminjaman/", controller.peminjamanController.getAll);
+router.get("/peminjaman/:idPeminjaman", controller.peminjamanController.getOne);
+router.post("/peminjaman/", controller.peminjamanController.post);
+router.put("/peminjaman/:idPeminjaman", controller.peminjamanController.put);
+router.delete("/peminjaman/:idPeminjaman", controller.peminjamanController.delete);
 
+router.get('/admin', verifyToken, controller.adminController.getAdmin);
+router.post('/admin', controller.adminController.register);
+router.post('/login', controller.adminController.login);
+router.get('/token', controller.RefreshToken.refreshToken);
+router.delete('/logout', controller.adminController.logout);
 
-module.exports = router;
+export default router;

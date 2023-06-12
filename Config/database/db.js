@@ -1,9 +1,10 @@
-const Sequelize = require("sequelize");
-var mysql2 = require("mysql2");
+import { Sequelize } from "sequelize";
+import mysql2 from "mysql2";
 
-const database = new Sequelize("digital_library", "root", "", {
+const db = new Sequelize("digital_library", "root", "12345678", {
   host: "localhost",
+  port: 3306,
   dialect: "mysql",
 });
 
-module.exports = database;
+export default db;

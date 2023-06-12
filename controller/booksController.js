@@ -1,7 +1,8 @@
-const models = require("../Config/model/index");
+import models from "../Config/model/index.js";
+import { Op } from "sequelize";
+import fs from "fs";
+
 const controller = {};
-const { Op } = require("sequelize");
-const fs = require("fs");
 
 controller.getAll = async function (req, res) {
   try {
@@ -39,7 +40,6 @@ controller.getOne = async function (req, res) {
         ],
       },
     });
-    // let books = await models.books.findAll({})
     if (books.length > 0) {
       res.status(200).json({
         message: "Data buku ditemukan",
@@ -61,10 +61,8 @@ controller.getOne = async function (req, res) {
 
 controller.post = async function (req, res) {
   try {
-    console.log(req.body)
-    console.log(req.files)
-    // console.log(req.params)
-    // console.log(req)
+    console.log(req.body);
+    console.log(req.files);
     let book = await models.books.create({
       kode_buku: req.body.kode_buku,
       judul: req.body.judul,
@@ -84,16 +82,16 @@ controller.post = async function (req, res) {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Terjadi kesalahan saat menambahkan buku",
+      message: error.message,
     });
   }
 };
 
 controller.put = async function (req, res) {
-  console.log("hello")
+  console.log("hello");
   try {
-    console.log(req.body)
-    console.log(req.params)
+    console.log(req.body);
+    console.log(req.params);
     let books = await models.books.update(
       {
         judul: req.body.judul,
@@ -115,7 +113,7 @@ controller.put = async function (req, res) {
       message: "Berhasil ubah data buku",
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(404).json({
       message: error,
     });
@@ -199,4 +197,4 @@ controller.getSearch = async function (req, res) {
   }
 };
 
-module.exports = controller;
+export default controller;

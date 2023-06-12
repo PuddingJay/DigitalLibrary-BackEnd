@@ -1,0 +1,29 @@
+GET http://localhost:3005/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjozLCJuYW1lIjoiQWhtYWQiLCJ1c2VybmFtZSI6ImFkbWluMyIsImlhdCI6MTY4NjUzODc1NCwiZXhwIjoxNjg2NTM4NzY5fQ.CJphQgFs1YrHe3NpIaWZ53ydYyubWLoH8_xNqihClVI
+
+
+###
+POST http://localhost:3005/admin
+Content-Type: application/json
+
+{
+  "name" : "Ahmad",
+  "username": "admin3",
+  "password": "perpustakaan1945", 
+  "confPassword": "perpustakaan1945"
+}
+
+###
+POST http://localhost:3005/login
+Content-Type: application/json
+
+{
+  "username" : "admin3",
+  "password" : "perpustakaan1945"
+}
+
+###
+GET http://localhost:3005/token
+
+###
+DELETE http://localhost:3005/logout

@@ -1,11 +1,15 @@
-const booksController = require("./booksController");
-const siswaController = require("./siswaController");
-const peminjamanController = require ("./peminjamanController");
+import booksController from "./booksController.js";
+import siswaController from "./siswaController.js";
+import peminjamanController from "./peminjamanController.js";
+import adminController from "./adminController.js";
+import RefreshToken from './RefreshToken.js';
 
 const controller = {
-  booksController: booksController,
-  siswaController: siswaController,
-  peminjamanController : peminjamanController,
+  booksController,
+  siswaController,
+  peminjamanController,
+  adminController,
+  RefreshToken
 };
 
-module.exports = controller;
+export default controller;
