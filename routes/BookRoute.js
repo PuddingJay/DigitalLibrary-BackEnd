@@ -19,11 +19,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// router.post("/", upload.single("cover_buku"), controller.booksController.post,
-//   (req, res, next) => {
-//     console.log(req);
-//     res.send("Foto berhasil diupload.");
-//   });
+
 
 
   const storagePdf = multer.diskStorage({
@@ -37,17 +33,10 @@ const upload = multer({ storage: storage });
   
   const uploadPdf = multer({ storage: storagePdf });
 
-// router.post("/", uploadPdf.single("file_ebook"), controller.booksController.post,
-//   (req, res, next) => {
-//     console.log(req);
-//     res.send("Buku digital berhasil diupload.");
-//   });
-
-
-
-router.get("/book/:kode_buku", controller.booksController.getOne);
+router.get("/book/:idBuku", controller.booksController.getOne);
+router.get("/book/pdf/:idBuku",controller.booksController.getPdf)
 router.get("/book/", controller.booksController.getAll);
-router.get("/book/:search", controller.booksController.getSearch);
+router.get("/book/search/:keyword", controller.booksController.getSearch);
 router.post("/book/", upload.fields([
   {
     name: 'cover_buku', maxCount: 1
@@ -57,7 +46,7 @@ router.post("/book/", upload.fields([
   }
 ]),  controller.booksController.post);
 
-router.put("/book/:kode_buku", upload.fields([
+router.put("/book/:idBuku", upload.fields([
   {
     name : 'cover_buku', maxCount: 1
   }, 
@@ -65,7 +54,7 @@ router.put("/book/:kode_buku", upload.fields([
     name : 'file_ebook', maxCount : 1
   }
 ]), controller.booksController.put);
-router.delete("/book/:kode_buku", controller.booksController.delete);
+router.delete("/book/:idBuku", controller.booksController.delete);
 
 router.get("/siswa/:NIS", controller.siswaController.getOne);
 router.get("/siswa/", controller.siswaController.getAll);
@@ -73,6 +62,7 @@ router.get("/siswa/:search", controller.siswaController.getSearch);
 router.post("/siswa/", controller.siswaController.post);
 router.put("/siswa/:NIS", controller.siswaController.put);
 router.delete("/siswa/:NIS", controller.siswaController.delete);
+router.post("/siswa/login", controller.siswaController.login);
 
 router.get('/peminjaman/', controller.peminjamanController.getAll);
 router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne);

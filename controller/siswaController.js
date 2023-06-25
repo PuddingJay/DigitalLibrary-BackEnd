@@ -2,6 +2,9 @@ const models = require("../Config/model/index");
 const siswaController = {};
 const { Op } = require("sequelize");
 const fs = require("fs");
+const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 siswaController.getAll = async function (req, res) {
   try {
@@ -171,6 +174,24 @@ siswaController.getSearch = async function (req, res) {
       message: "Terjadi kesalahan saat mengambil data",
     });
   }
-};
+}
+siswaController.login = async function (req, res) {
+  const { Nama, NIS } = req.body;
+
+  // Mencari siswa berdasarkan Nama dan NIS
+  const siswa = await  models.siswa.findOne({ where: { Nama: Nama, NIS: NIS }});
+
+  if (!siswa) {
+    return res.status(404).json({ message: 'Siswa tidak ditemukan.' });
+  }
+
+  // Membuat token JWT
+  const token = jwt.sign({ NIS: siswa.NIS }, 'secret_key');
+
+  res.json({ token });
+};    
+
+
+
 
 module.exports = siswaController;

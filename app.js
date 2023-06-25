@@ -20,6 +20,7 @@ app.use(function (req, res, next) {
 });
 
 app.use("/asset/cover", express.static(path.join(__dirname, 'asset/cover')));
+app.use("/asset/file_ebook", express.static(path.join(__dirname, 'asset/file_ebook')))
 app.use("/BookRoute", BookRouter);
 
 app.use((req, res, next) => {

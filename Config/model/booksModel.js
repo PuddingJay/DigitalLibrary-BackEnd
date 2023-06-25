@@ -4,6 +4,7 @@ const db = require("../database/db");
 var books = db.define(
   "books",
   {
+    idBuku : Sequelize.INTEGER,
     kode_buku: Sequelize.STRING,
     judul: Sequelize.STRING,
     penulis: Sequelize.STRING,
