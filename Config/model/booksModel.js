@@ -4,7 +4,7 @@ import db from "../database/db.js";
 const books = db.define(
   "books",
   {
-    kode_buku: Sequelize.STRING,
+    kodeBuku: { type: Sequelize.INTEGER, primaryKey: true },
     judul: Sequelize.STRING,
     penulis: Sequelize.STRING,
     Kategori: Sequelize.STRING,

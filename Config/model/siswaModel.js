@@ -5,7 +5,7 @@ import db from "../database/db.js";
 const siswa = db.define(
   "siswa",
   {
-    NIS: Sequelize.INTEGER,
+    NIS: { type: Sequelize.INTEGER, primaryKey: true },
     Nama: Sequelize.STRING,
     Kelas: Sequelize.STRING,
     Jurusan: Sequelize.STRING,

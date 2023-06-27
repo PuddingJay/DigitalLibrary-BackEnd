@@ -1,15 +1,28 @@
 import models from '../Config/model/index.js';
 import { Op } from 'sequelize';
+import db from '../Config/database/db.js'
+// import books from "../Config/model/booksModel.js";
 
 const controller = {};
 
 controller.getAll = async function (req, res) {
   try {
-    let peminjaman = await models.peminjaman.findAll();
+    let peminjaman = await db.query('SELECT DISTINCT peminjaman.idPeminjaman, peminjaman.kodeBuku as kodeBuku, peminjaman.namaPeminjam, books.judul as judulBuku, peminjaman.tglPinjam, peminjaman.batasPinjam, peminjaman.tglKembali, peminjaman.denda, peminjaman.status as status FROM peminjaman JOIN books ON peminjaman.kodeBuku = books.kodeBuku')
+
+    // models.peminjaman.findAll(
+    //   {
+    //     include: {
+    //       model: models.books,
+    //       as: 'books'
+    //     },
+    //   }
+    // );
+
     if (peminjaman.length > 0) {
+      const uniquePeminjaman = Array.from(new Set(peminjaman.map(JSON.stringify))).map(JSON.parse);
       res.status(200).json({
         message: "Get Method Peminjaman",
-        data: peminjaman,
+        data: uniquePeminjaman.flat(),
       });
     } else {
       res.status(200).json({
@@ -55,7 +68,7 @@ controller.post = async function (req, res) {
   try {
     console.log(req.body);
     let peminjaman = await models.peminjaman.create({
-      idBuku: req.body.idBuku,
+      kodeBuku: req.body.kodeBuku,
       namaPeminjam: req.body.namaPeminjam,
       judulBuku: req.body.judulBuku,
       tglPinjam: req.body.tglPinjam,
@@ -82,7 +95,7 @@ controller.put = async function (req, res) {
   try {
     let peminjaman = await models.peminjaman.update(
       {
-        idBuku: req.body.idBuku,
+        kodeBuku: req.body.kodeBuku,
         namaPeminjam: req.body.namaPeminjam,
         judulBuku: req.body.judulBuku,
         tglPinjam: req.body.tglPinjam,
@@ -130,7 +143,7 @@ controller.getSearch = async function (req, res) {
     let peminjaman = await models.peminjaman.findAll({
       attributes: [
         'idPeminjaman',
-        'idBuku',
+        'kodeBuku',
         'namaPeminjam',
         'judulBuku',
         'tglPinjam',
@@ -147,7 +160,7 @@ controller.getSearch = async function (req, res) {
             },
           },
           {
-            idBuku: {
+            kodeBuku: {
               [Op.like]: "%" + search + "%",
             },
           },

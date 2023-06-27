@@ -7,7 +7,7 @@ const controller = {};
 controller.getAll = async function (req, res) {
   try {
     let books = await models.books.findAll({
-      attributes: ["kode_buku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
+      attributes: ["kodeBuku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
     });
     if (books.length > 0) {
       res.status(200).json({
@@ -35,7 +35,7 @@ controller.getOne = async function (req, res) {
       where: {
         [Op.or]: [
           {
-            kode_buku: req.params.kode_buku,
+            kodeBuku: req.params.kodeBuku,
           },
         ],
       },
@@ -64,7 +64,7 @@ controller.post = async function (req, res) {
     console.log(req.body);
     console.log(req.files);
     let book = await models.books.create({
-      kode_buku: req.body.kode_buku,
+      kodeBuku: req.body.kodeBuku,
       judul: req.body.judul,
       penulis: req.body.penulis,
       Kategori: req.body.Kategori,
@@ -105,7 +105,7 @@ controller.put = async function (req, res) {
       },
       {
         where: {
-          kode_buku: req.body.kode_buku,
+          kodeBuku: req.body.kodeBuku,
         },
       }
     );
@@ -124,7 +124,7 @@ controller.delete = async function (req, res) {
   try {
     await models.books.destroy({
       where: {
-        kode_buku: req.params.kode_buku,
+        kodeBuku: req.params.kodeBuku,
       },
     });
     res.status(200).json({
@@ -142,11 +142,11 @@ controller.getSearch = async function (req, res) {
   const search = req.query.keyword;
   try {
     let books = await models.books.findAll({
-      attributes: ["kode_buku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
+      attributes: ["kodeBuku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
       where: {
         [Op.or]: [
           {
-            kode_buku: {
+            kodeBuku: {
               [Op.like]: "%" + search + "%",
             },
           },
