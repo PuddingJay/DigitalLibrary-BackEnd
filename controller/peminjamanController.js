@@ -7,7 +7,7 @@ const controller = {};
 
 controller.getAll = async function (req, res) {
   try {
-    let peminjaman = await db.query('SELECT DISTINCT peminjaman.idPeminjaman, peminjaman.kodeBuku as kodeBuku, peminjaman.namaPeminjam, books.judul as judulBuku, peminjaman.tglPinjam, peminjaman.batasPinjam, peminjaman.tglKembali, peminjaman.denda, peminjaman.status as status FROM peminjaman JOIN books ON peminjaman.kodeBuku = books.kodeBuku')
+    let peminjaman = await db.query('SELECT DISTINCT peminjaman.idPeminjaman, peminjaman.kodeBuku as kodeBuku, siswa.NIS, peminjaman.namaPeminjam, books.judul as judulBuku, peminjaman.tglPinjam, peminjaman.batasPinjam, peminjaman.tglKembali, peminjaman.denda, peminjaman.status as status FROM peminjaman JOIN books ON peminjaman.kodeBuku = books.kodeBuku JOIN siswa ON peminjaman.NIS = siswa.NIS;')
 
     // models.peminjaman.findAll(
     //   {
@@ -69,6 +69,7 @@ controller.post = async function (req, res) {
     console.log(req.body);
     let peminjaman = await models.peminjaman.create({
       kodeBuku: req.body.kodeBuku,
+      NIS: req.body.NIS,
       namaPeminjam: req.body.namaPeminjam,
       judulBuku: req.body.judulBuku,
       tglPinjam: req.body.tglPinjam,
@@ -96,6 +97,7 @@ controller.put = async function (req, res) {
     let peminjaman = await models.peminjaman.update(
       {
         kodeBuku: req.body.kodeBuku,
+        NIS: req.body.NIS,
         namaPeminjam: req.body.namaPeminjam,
         judulBuku: req.body.judulBuku,
         tglPinjam: req.body.tglPinjam,

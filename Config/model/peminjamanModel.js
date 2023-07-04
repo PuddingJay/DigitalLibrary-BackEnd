@@ -8,6 +8,7 @@ const peminjaman = db.define(
   {
     idPeminjaman: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     kodeBuku: Sequelize.STRING,
+    NIS: Sequelize.INTEGER,
     namaPeminjam: Sequelize.STRING,
     judulBuku: Sequelize.STRING,
     tglPinjam: Sequelize.DATE,

@@ -34,7 +34,7 @@ const storagePdf = multer.diskStorage({
 
 const uploadPdf = multer({ storage: storagePdf });
 
-router.get("/book/:kode_buku", controller.booksController.getOne);
+router.get("/book/:kodeBuku", controller.booksController.getOne);
 router.get("/book/", controller.booksController.getAll);
 router.get("/book/:search", controller.booksController.getSearch);
 router.post(
@@ -43,11 +43,11 @@ router.post(
   controller.booksController.post
 );
 router.put(
-  "/book/:kode_buku",
+  "/book/:kodeBuku",
   upload.fields([{ name: "cover_buku", maxCount: 1 }, { name: "file_ebook", maxCount: 1 }]),
   controller.booksController.put
 );
-router.delete("/book/:kode_buku", controller.booksController.delete);
+router.delete("/book/:kodeBuku", controller.booksController.delete);
 
 router.get("/siswa/:NIS", controller.siswaController.getOne);
 router.get("/siswa/", controller.siswaController.getAll);
