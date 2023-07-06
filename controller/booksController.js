@@ -1,12 +1,13 @@
-const models = require("../Config/model/index");
+import models from "../Config/model/index.js";
+import { Op } from "sequelize";
+import fs from "fs";
+
 const controller = {};
-const { Op } = require("sequelize");
-const fs = require("fs");
 
 controller.getAll = async function (req, res) {
   try {
     let books = await models.books.findAll({
-      attributes: ["kode_buku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
+      attributes: ["kodeBuku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
     });
     if (books.length > 0) {
       res.status(200).json({
@@ -34,12 +35,11 @@ controller.getOne = async function (req, res) {
       where: {
         [Op.or]: [
           {
-            kode_buku: req.params.kode_buku,
+            kodeBuku: req.params.kodeBuku,
           },
         ],
       },
     });
-    // let books = await models.books.findAll({})
     if (books.length > 0) {
       res.status(200).json({
         message: "Data buku ditemukan",
@@ -61,12 +61,10 @@ controller.getOne = async function (req, res) {
 
 controller.post = async function (req, res) {
   try {
-    console.log(req.body)
-    console.log(req.files)
-    // console.log(req.params)
-    // console.log(req)
+    console.log(req.body);
+    console.log(req.files);
     let book = await models.books.create({
-      kode_buku: req.body.kode_buku,
+      kodeBuku: req.body.kodeBuku,
       judul: req.body.judul,
       penulis: req.body.penulis,
       Kategori: req.body.Kategori,
@@ -84,16 +82,16 @@ controller.post = async function (req, res) {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Terjadi kesalahan saat menambahkan buku",
+      message: error.message,
     });
   }
 };
 
 controller.put = async function (req, res) {
-  console.log("hello")
+  console.log("hello");
   try {
-    console.log(req.body)
-    console.log(req.params)
+    console.log(req.body);
+    console.log(req.params);
     let books = await models.books.update(
       {
         judul: req.body.judul,
@@ -107,7 +105,7 @@ controller.put = async function (req, res) {
       },
       {
         where: {
-          kode_buku: req.body.kode_buku,
+          kodeBuku: req.body.kodeBuku,
         },
       }
     );
@@ -115,7 +113,7 @@ controller.put = async function (req, res) {
       message: "Berhasil ubah data buku",
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(404).json({
       message: error,
     });
@@ -126,7 +124,7 @@ controller.delete = async function (req, res) {
   try {
     await models.books.destroy({
       where: {
-        kode_buku: req.params.kode_buku,
+        kodeBuku: req.params.kodeBuku,
       },
     });
     res.status(200).json({
@@ -144,11 +142,11 @@ controller.getSearch = async function (req, res) {
   const search = req.query.keyword;
   try {
     let books = await models.books.findAll({
-      attributes: ["kode_buku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
+      attributes: ["kodeBuku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
       where: {
         [Op.or]: [
           {
-            kode_buku: {
+            kodeBuku: {
               [Op.like]: "%" + search + "%",
             },
           },
@@ -199,4 +197,4 @@ controller.getSearch = async function (req, res) {
   }
 };
 
-module.exports = controller;
+export default controller;

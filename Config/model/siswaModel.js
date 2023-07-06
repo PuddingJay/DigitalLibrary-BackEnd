@@ -1,10 +1,11 @@
-const Sequelize = require("sequelize");
-const db = require("../database/db");
+import Sequelize from "sequelize";
+import db from "../database/db.js";
 
-var siswa = db.define(
+
+const siswa = db.define(
   "siswa",
   {
-    NIS: Sequelize.INTEGER,
+    NIS: { type: Sequelize.INTEGER, primaryKey: true },
     Nama: Sequelize.STRING,
     Kelas: Sequelize.STRING,
     Jurusan: Sequelize.STRING,
@@ -16,4 +17,5 @@ var siswa = db.define(
 );
 
 siswa.removeAttribute("id");
-module.exports = siswa;
+
+export default siswa;
