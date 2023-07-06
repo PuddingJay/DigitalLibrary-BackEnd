@@ -1,0 +1,66 @@
+GET http://localhost:3005/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjozLCJuYW1lIjoiQWhtYWQiLCJ1c2VybmFtZSI6ImFkbWluMyIsImlhdCI6MTY4ODQwMDczNiwiZXhwIjoxNjg4NDAwNzU2fQ.BZdr47x0j1Vif7mVgGo_3_C57oHe-o5uMTwnNxviC2A
+
+
+###
+POST http://localhost:3005/admin
+Content-Type: application/json
+
+{
+  "name" : "Windu",
+  "username": "admin4",
+  "password": "perpustakaan1945", 
+  "confPassword": "perpustakaan1945"
+}
+
+###
+POST http://localhost:3005/login
+Content-Type: application/json
+
+{
+  "username" : "admin3",
+  "password" : "perpustakaan1945"
+}
+
+###
+GET http://localhost:3005/token
+
+###
+DELETE http://localhost:3005/logout
+
+###
+GET http://localhost:3005/siswa
+
+###
+POST http://localhost:3005/siswa
+
+{
+  "NIS" : "15151",
+  "Nama": "Nama",
+  "Kelas": "Kelas",
+  "Jurusan" : "Jurusan"
+}
+
+###
+GET http://localhost:3005/peminjaman
+
+###
+POST http://localhost:3005/peminjaman
+
+{
+    "kodeBuku" : "1.2.7",
+    "NIS": "105219036",
+    "namaPeminjam" : "Muhammad Windu Aji",
+    "judulBuku" : "Coba lagi",
+    "tglPinjam" : "2023-03-31",
+    "batasPinjam" : "2023-05-24",
+    "tglKembali" : null,
+    "status" : "Belum Dikembalikan",
+    "denda" : null
+}
+
+###
+GET http://localhost:3005/book
+
+###
+DELETE http://localhost:3005/peminjaman/35

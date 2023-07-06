@@ -1,7 +1,8 @@
-const models = require("../Config/model/index");
+import models from "../Config/model/index.js";
+import { Op } from "sequelize";
+import fs from "fs";
+
 const siswaController = {};
-const { Op } = require("sequelize");
-const fs = require("fs");
 
 siswaController.getAll = async function (req, res) {
   try {
@@ -39,7 +40,6 @@ siswaController.getOne = async function (req, res) {
         ],
       },
     });
-    // let books = await models.books.findAll({})
     if (siswa.length > 0) {
       res.status(200).json({
         message: "Data buku ditemukan",
@@ -83,7 +83,7 @@ siswaController.post = async function (req, res) {
 
 siswaController.put = async function (req, res) {
   try {
-    console.log("req body", req.body)
+    console.log("req body", req.body);
     let siswa = await models.siswa.update(
       {
         Nama: req.body.Nama,
@@ -173,4 +173,4 @@ siswaController.getSearch = async function (req, res) {
   }
 };
 
-module.exports = siswaController;
+export default siswaController;
