@@ -8,7 +8,7 @@ const admin = db.define(
     name: Sequelize.STRING,
     username: Sequelize.STRING,
     password: Sequelize.STRING,
-    refreshToken: Sequelize.TEXT
+    refreshToken: Sequelize.TEXT,
   },
   {
     freezeTableName: true,

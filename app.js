@@ -18,12 +18,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
-  res.header("Access-Control-Allow-Headers", "x-access-token, Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
+  res.header(
+    'Access-Control-Allow-Headers',
+    'x-access-token, Origin, X-Requested-With, Content-Type, Accept',
+  )
+  next()
+})
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use("/asset/cover", express.static(path.join(__dirname, 'asset/cover')));
@@ -36,15 +39,13 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
-  res.status(error.status || 500);
+  res.status(error.status || 500)
   res.json({
     error: {
       message: error.message,
     },
-  });
-});
-
-
+  })
+})
 try {
   await db.authenticate();
   console.log('Database Connected')
@@ -55,9 +56,3 @@ try {
 
 
 export default app;
-
-
-
-
-
-

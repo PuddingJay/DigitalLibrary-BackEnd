@@ -1,36 +1,35 @@
-import models from "../Config/model/index.js";
-import { Op } from "sequelize";
-import fs from "fs";
-
-const siswaController = {};
+const models = require('../Config/model/index')
+const siswaController = {}
+const { Op } = require('sequelize')
+const jwt = require('jsonwebtoken')
 
 siswaController.getAll = async function (req, res) {
   try {
     let siswa = await models.siswa.findAll({
-      attributes: ["NIS", "Nama", "Kelas", "Jurusan"],
-    });
+      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan'],
+    })
     if (siswa.length > 0) {
       res.status(200).json({
-        message: "Data semua Siswa",
+        message: 'Data semua Siswa',
         data: siswa,
-      });
+      })
     } else {
       res.status(202).json({
-        message: "Tidak ada data",
+        message: 'Tidak ada data',
         data: [],
-      });
+      })
     }
   } catch (error) {
-    console.log(error);
+    console.log(error)
     res.status(404).json({
       message: error,
-    });
+    })
   }
-};
+}
 
 siswaController.getOne = async function (req, res) {
   try {
-    console.log(req.params);
+    console.log(req.params)
     let siswa = await models.siswa.findAll({
       where: {
         [Op.or]: [
@@ -39,25 +38,26 @@ siswaController.getOne = async function (req, res) {
           },
         ],
       },
-    });
+    })
+    // let books = await models.books.findAll({})
     if (siswa.length > 0) {
       res.status(200).json({
-        message: "Data buku ditemukan",
+        message: 'Data buku ditemukan',
         data: siswa,
-      });
+      })
     } else {
       res.status(200).json({
-        message: "Tidak ada data",
+        message: 'Tidak ada data',
         data: [],
-      });
+      })
     }
   } catch (error) {
-    console.log(error);
+    console.log(error)
     res.status(404).json({
       message: error,
-    });
+    })
   }
-};
+}
 
 siswaController.post = async function (req, res) {
   try {
@@ -66,24 +66,24 @@ siswaController.post = async function (req, res) {
       Nama: req.body.Nama,
       Kelas: req.body.Kelas,
       Jurusan: req.body.Jurusan,
-    });
+    })
     res.status(201).json({
-      message: "Buku berhasil ditambahkan",
+      message: 'Buku berhasil ditambahkan',
       data: siswa,
-    });
+    })
   } catch (error) {
-    process.on("uncaughtException", function (err) {
-      console.log(req.body);
-    });
+    process.on('uncaughtException', function (err) {
+      console.log(req.body)
+    })
     res.status(404).json({
       message: error,
-    });
+    })
   }
-};
+}
 
 siswaController.put = async function (req, res) {
   try {
-    console.log("req body", req.body);
+    console.log('req body', req.body)
     let siswa = await models.siswa.update(
       {
         Nama: req.body.Nama,
@@ -94,17 +94,17 @@ siswaController.put = async function (req, res) {
         where: {
           NIS: req.body.NIS,
         },
-      }
-    );
+      },
+    )
     res.status(200).json({
-      message: "Berhasil ubah data buku",
-    });
+      message: 'Berhasil ubah data buku',
+    })
   } catch (error) {
     res.status(404).json({
       message: error,
-    });
+    })
   }
-};
+}
 
 siswaController.delete = async function (req, res) {
   try {
@@ -112,65 +112,87 @@ siswaController.delete = async function (req, res) {
       where: {
         NIS: req.params.NIS,
       },
-    });
+    })
     res.status(200).json({
-      message: "Berhasil hapus data buku",
-    });
+      message: 'Berhasil hapus data buku',
+    })
   } catch (error) {
-    console.log(error);
+    console.log(error)
     res.status(404).json({
       message: error,
-    });
+    })
   }
-};
+}
 
 siswaController.getSearch = async function (req, res) {
-  const search = req.query.keyword;
+  const search = req.query.keyword
   try {
     let siswa = await models.siswa.findAll({
-      attributes: ["NIS", "Nama", "Kelas", "Jurusan"],
+      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan'],
       where: {
         [Op.or]: [
           {
             NIS: {
-              [Op.like]: "%" + search + "%",
+              [Op.like]: '%' + search + '%',
             },
           },
           {
             Nama: {
-              [Op.like]: "%" + search + "%",
+              [Op.like]: '%' + search + '%',
             },
           },
           {
             Kelas: {
-              [Op.like]: "%" + search + "%",
+              [Op.like]: '%' + search + '%',
             },
           },
           {
             Jurusan: {
-              [Op.like]: "%" + search + "%",
+              [Op.like]: '%' + search + '%',
             },
           },
         ],
       },
-    });
+    })
     if (siswa.length > 0) {
       res.status(200).json({
-        message: "Data semua Buku",
+        message: 'Data semua Buku',
         data: siswa,
-      });
+      })
     } else {
       res.status(202).json({
-        message: "Tidak ada data",
+        message: 'Tidak ada data',
         data: [],
-      });
+      })
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
     res.status(500).json({
-      message: "Terjadi kesalahan saat mengambil data",
-    });
+      message: 'Terjadi kesalahan saat mengambil data',
+    })
   }
-};
+}
 
-export default siswaController;
+siswaController.login = async (req, res) => {
+  const { Nama, NIS } = req.body
+
+  try {
+    // Cari pengguna dengan Nama, NIS, dan Kelas yang sesuai dalam tabel "users"
+    const user = await models.siswa.findOne({ where: { Nama, NIS } })
+
+    // Jika pengguna tidak ditemukan
+    if (!user) {
+      return res.status(401).json({ message: 'Nama, NIS, atau Kelas salah' })
+    }
+
+    // Membuat token JWT
+    const token = jwt.sign({ userId: user.id }, 'secret_key', { expiresIn: '1h' })
+
+    // Mengirim token sebagai respons
+    res.status(200).json({ token })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Terjadi kesalahan saat login' })
+  }
+}
+module.exports = siswaController
