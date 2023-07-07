@@ -1,9 +1,10 @@
-const models = require('../Config/model/index')
-const controller = {}
-const { Op } = require('sequelize')
-const fs = require('fs')
-const PDFJS = require('pdfjs-dist')
-const path = require('path')
+import models from '../Config/model/index.js';
+import { Op } from 'sequelize';
+import fs from 'fs';
+import PDFJS from 'pdfjs-dist';
+import path from 'path';
+
+const controller = {};
 
 controller.getAll = async function (req, res) {
   try {
@@ -17,6 +18,7 @@ controller.getAll = async function (req, res) {
         'tahun_terbit',
         'keterangan',
         'jumlah',
+        'tersedia',
         'cover_buku',
         'file_ebook',
       ],
@@ -266,9 +268,11 @@ controller.post = async function (req, res) {
       tahun_terbit: req.body.tahun_terbit,
       keterangan: req.body.keterangan,
       jumlah: req.body.jumlah,
+      tersedia: req.body.jumlah,
       cover_buku: coverPath,
       file_ebook: ebookPath,
-    })
+    });
+
     console.log(book)
     res.status(201).json({
       message: 'Buku berhasil ditambahkan',
@@ -469,4 +473,4 @@ controller.getCategory = async function (req, res) {
   }
 }
 
-module.exports = controller
+export default controller;

@@ -1,7 +1,8 @@
-const models = require('../Config/model/index')
-const siswaController = {}
-const { Op } = require('sequelize')
-const jwt = require('jsonwebtoken')
+import models from '../Config/model/index.js';
+import { Op } from 'sequelize';
+import jwt from 'jsonwebtoken';
+
+const siswaController = {};
 
 siswaController.getAll = async function (req, res) {
   try {
@@ -195,4 +196,4 @@ siswaController.login = async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan saat login' })
   }
 }
-module.exports = siswaController
+export default siswaController

@@ -12,6 +12,7 @@ const books = db.define(
     tahun_terbit: Sequelize.STRING,
     keterangan: Sequelize.STRING,
     jumlah: Sequelize.INTEGER,
+    tersedia: Sequelize.INTEGER,
     cover_buku: Sequelize.STRING,
     file_ebook: Sequelize.STRING,
   },
