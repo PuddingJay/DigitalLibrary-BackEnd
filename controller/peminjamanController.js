@@ -1,27 +1,21 @@
 import models from '../Config/model/index.js';
 import { Op } from 'sequelize';
 import db from '../Config/database/db.js'
+import moment from 'moment';
 // import books from "../Config/model/booksModel.js";
 
 const controller = {};
 
 controller.getAll = async function (req, res) {
   try {
-    let peminjaman = await db.query('SELECT DISTINCT peminjaman.idPeminjaman, peminjaman.kodeBuku as kodeBuku, siswa.NIS, peminjaman.namaPeminjam, books.judul as judulBuku, peminjaman.tglPinjam, peminjaman.batasPinjam, peminjaman.tglKembali, peminjaman.denda, peminjaman.status as status FROM peminjaman JOIN books ON peminjaman.kodeBuku = books.kodeBuku JOIN siswa ON peminjaman.NIS = siswa.NIS;')
-
-    // models.peminjaman.findAll(
-    //   {
-    //     include: {
-    //       model: models.books,
-    //       as: 'books'
-    //     },
-    //   }
-    // );
+    let peminjaman = await db.query(
+      'SELECT DISTINCT peminjaman.idPeminjaman, peminjaman.kodeBuku as kodeBuku, siswa.NIS, peminjaman.namaPeminjam, books.judul as judulBuku, peminjaman.tglPinjam, peminjaman.batasPinjam, peminjaman.tglKembali, peminjaman.denda, peminjaman.status as status FROM peminjaman JOIN books ON peminjaman.kodeBuku = books.kodeBuku JOIN siswa ON peminjaman.NIS = siswa.NIS;'
+    );
 
     if (peminjaman.length > 0) {
       const uniquePeminjaman = Array.from(new Set(peminjaman.map(JSON.stringify))).map(JSON.parse);
       res.status(200).json({
-        message: "Get Method Peminjaman",
+        message: 'Get Method Peminjaman',
         data: uniquePeminjaman.flat(),
       });
     } else {
@@ -92,6 +86,12 @@ controller.post = async function (req, res) {
     await models.books.update(
       { tersedia: book.tersedia - 1 },
       { where: { kodeBuku } }
+    );
+
+    await models.siswa.increment('jumlahPinjam', { by: 1, where: { NIS } });
+    await models.siswa.update(
+      { waktuPinjam: moment().toDate() }, // Update waktuPinjam with current time
+      { where: { NIS } }
     );
 
     res.status(201).json({

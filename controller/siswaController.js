@@ -7,7 +7,7 @@ const siswaController = {};
 siswaController.getAll = async function (req, res) {
   try {
     let siswa = await models.siswa.findAll({
-      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan'],
+      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan', 'jumlahPinjam', 'waktuPinjam'],
     })
     if (siswa.length > 0) {
       res.status(200).json({
@@ -67,6 +67,7 @@ siswaController.post = async function (req, res) {
       Nama: req.body.Nama,
       Kelas: req.body.Kelas,
       Jurusan: req.body.Jurusan,
+      jumlahPinjam: 0,
     })
     res.status(201).json({
       message: 'Buku berhasil ditambahkan',
@@ -84,8 +85,20 @@ siswaController.post = async function (req, res) {
 
 siswaController.put = async function (req, res) {
   try {
-    console.log('req body', req.body)
-    let siswa = await models.siswa.update(
+    const currentNIS = req.params.NIS; // Current NIS value
+    const newNIS = req.body.NIS; // New NIS value
+
+    // Check if the new NIS value is different from the current NIS value
+    if (newNIS !== currentNIS) {
+      // Update the NIS value in the database for the corresponding anggota
+      await models.siswa.update(
+        { NIS: newNIS },
+        { where: { NIS: currentNIS } }
+      );
+    }
+
+    // Update the other properties of the anggota
+    await models.siswa.update(
       {
         Nama: req.body.Nama,
         Kelas: req.body.Kelas,
@@ -93,19 +106,20 @@ siswaController.put = async function (req, res) {
       },
       {
         where: {
-          NIS: req.body.NIS,
+          NIS: currentNIS,
         },
-      },
-    )
+      }
+    );
+
     res.status(200).json({
-      message: 'Berhasil ubah data buku',
-    })
+      message: 'Berhasil ubah data anggota',
+    });
   } catch (error) {
     res.status(404).json({
       message: error,
-    })
+    });
   }
-}
+};
 
 siswaController.delete = async function (req, res) {
   try {

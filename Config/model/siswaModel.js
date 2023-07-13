@@ -9,6 +9,8 @@ const siswa = db.define(
     Nama: Sequelize.STRING,
     Kelas: Sequelize.STRING,
     Jurusan: Sequelize.STRING,
+    jumlahPinjam: Sequelize.INTEGER,
+    waktuPinjam: Sequelize.DATE,
   },
   {
     freezeTableName: true,
