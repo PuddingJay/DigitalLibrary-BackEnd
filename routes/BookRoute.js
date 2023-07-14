@@ -6,6 +6,7 @@ const controller = require('../controller/indexController')
 // import controller from "../controller/indexController.js";
 // import { verifyToken } from '../middleware/verifyToken.js';
 const verifyToken = require('../middleware/verifyToken.js')
+const tokenSiswa = require('../middleware/tokenSiswa')
 const multer = require('multer')
 const path = require('path')
 const storage = multer.diskStorage({
@@ -67,19 +68,22 @@ router.put(
 )
 router.delete('/book/:idBuku', controller.booksController.delete)
 
-router.get('/siswa/:NIS', controller.siswaController.getOne)
-router.get('/siswa/', controller.siswaController.getAll)
-router.get('/siswa/:search', controller.siswaController.getSearch)
-router.post('/siswa/', controller.siswaController.post)
-router.put('/siswa/:NIS', controller.siswaController.put)
-router.delete('/siswa/:NIS', controller.siswaController.delete)
-router.post('/siswa/login', controller.siswaController.login)
-
 router.get('/peminjaman/', controller.peminjamanController.getAll)
 router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne)
 router.post('/peminjaman/', controller.peminjamanController.post)
 router.put('/peminjaman/:idPeminjaman', controller.peminjamanController.put)
 router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delete)
+
+router.get('/siswa/:NIS', controller.siswaController.getOne)
+router.get('/siswa/', controller.siswaController.getAll)
+router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
+router.get('/berhasilLogin', controller.refreshTokenSiswa.refreshToken)
+router.get('/siswa/:search', controller.siswaController.getSearch)
+router.post('/siswa/', controller.siswaController.post)
+router.put('/siswa/:NIS', controller.siswaController.put)
+router.delete('/siswa/:NIS', controller.siswaController.delete)
+router.post('/siswa/login', controller.siswaController.login)
+router.delete('/siswa/logout', controller.siswaController.logout)
 
 router.get('/admin', verifyToken, controller.adminController.getAdmin)
 router.post('/admin', controller.adminController.register)

@@ -1,19 +1,21 @@
-const Sequelize = require("sequelize");
-const db = require("../database/db");
+const Sequelize = require('sequelize')
+const db = require('../database/db')
 
 var siswa = db.define(
-  "siswa",
+  'siswa',
   {
     NIS: Sequelize.INTEGER,
     Nama: Sequelize.STRING,
+    password: Sequelize.TEXT,
     Kelas: Sequelize.STRING,
     Jurusan: Sequelize.STRING,
+    refreshToken: Sequelize.TEXT,
   },
   {
     freezeTableName: true,
     timestamps: false,
-  }
-);
+  },
+)
 
-siswa.removeAttribute("id");
-module.exports = siswa;
+siswa.removeAttribute('id')
+module.exports = siswa

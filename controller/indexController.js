@@ -5,6 +5,7 @@ const peminjamanController = require('./peminjamanController')
 // import RefreshToken from './RefreshToken.js';
 const adminController = require('./adminController')
 const RefreshToken = require('./RefreshToken')
+const refreshTokenSiswa = require('./refreshTokenSiswa')
 
 const controller = {
   booksController: booksController,
@@ -12,6 +13,7 @@ const controller = {
   peminjamanController: peminjamanController,
   adminController: adminController,
   RefreshToken: RefreshToken,
+  refreshTokenSiswa: refreshTokenSiswa,
 }
 
 module.exports = controller

@@ -1,10 +1,14 @@
-const Sequelize = require("sequelize");
-const db = require("../database/db");
+const Sequelize = require('sequelize')
+const db = require('../database/db')
+// import books from "./booksModel.js"
+const books = require('./booksModel.js')
 
-var peminjaman = db.define('peminjaman',
+const peminjaman = db.define(
+  'peminjaman',
   {
     idPeminjaman: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    idBuku: Sequelize.INTEGER,
+    kodeBuku: Sequelize.STRING,
+    NIS: Sequelize.INTEGER,
     namaPeminjam: Sequelize.STRING,
     judulBuku: Sequelize.STRING,
     tglPinjam: Sequelize.DATE,
@@ -12,10 +16,21 @@ var peminjaman = db.define('peminjaman',
     tglKembali: Sequelize.DATE,
     status: Sequelize.STRING,
     denda: Sequelize.STRING,
-  }, {
-  freezeTableName: true,
-  timestamps: false
-});
+  },
+  {
+    freezeTableName: true,
+    timestamps: false,
+  },
+)
 
-peminjaman.removeAttribute('id');
-module.exports = peminjaman;
+peminjaman.hasMany(books, {
+  foreignKey: 'kodeBuku',
+  as: 'books',
+})
+books.belongsTo(peminjaman, {
+  foreignKey: 'kodeBuku',
+  as: 'peminjaman',
+})
+
+peminjaman.removeAttribute('id')
+module.exports = peminjaman

@@ -1,19 +1,32 @@
-const models = require('../Config/model/index');
-const controller = {};
-const { Op } = require('sequelize');
+const models = require('../Config/model/index')
+const controller = {}
+const { Op } = require('sequelize')
 
 controller.getAll = async function (req, res) {
   try {
-    let peminjaman = await models.peminjaman.findAll()
+    let peminjaman = await db.query(
+      'SELECT DISTINCT peminjaman.idPeminjaman, peminjaman.kodeBuku as kodeBuku, siswa.NIS, peminjaman.namaPeminjam, books.judul as judulBuku, peminjaman.tglPinjam, peminjaman.batasPinjam, peminjaman.tglKembali, peminjaman.denda, peminjaman.status as status FROM peminjaman JOIN books ON peminjaman.kodeBuku = books.kodeBuku JOIN siswa ON peminjaman.NIS = siswa.NIS;',
+    )
+
+    // models.peminjaman.findAll(
+    //   {
+    //     include: {
+    //       model: models.books,
+    //       as: 'books'
+    //     },
+    //   }
+    // );
+
     if (peminjaman.length > 0) {
+      const uniquePeminjaman = Array.from(new Set(peminjaman.map(JSON.stringify))).map(JSON.parse)
       res.status(200).json({
-        message: "Get Method Peminjaman",
-        data: peminjaman
+        message: 'Get Method Peminjaman',
+        data: uniquePeminjaman.flat(),
       })
     } else {
       res.status(200).json({
-        message: "Tidak Ada Data",
-        data: []
+        message: 'Tidak Ada Data',
+        data: [],
       })
     }
   } catch (err) {
@@ -28,18 +41,18 @@ controller.getOne = async function (req, res) {
     let peminjaman = await models.peminjaman.findAll({
       where: {
         idPeminjaman: req.params.nim,
-      }
-    });
+      },
+    })
 
     if (peminjaman.length > 0) {
       res.status(200).json({
-        message: "Data Buku Ditemukan",
-        data: peminjaman
-      });
+        message: 'Data Buku Ditemukan',
+        data: peminjaman,
+      })
     } else {
       res.status(200).json({
-        message: "Tidak Ada Data",
-        data: []
+        message: 'Tidak Ada Data',
+        data: [],
       })
     }
   } catch (err) {
@@ -51,29 +64,50 @@ controller.getOne = async function (req, res) {
 
 controller.post = async function (req, res) {
   try {
-    console.log(req.body);
-    let peminjaman = await models.peminjaman.create(
-      {
-        idBuku: req.body.idBuku,
-        namaPeminjam: req.body.namaPeminjam,
-        judulBuku: req.body.judulBuku,
-        tglPinjam: req.body.tglPinjam,
-        batasPinjam: req.body.batasPinjam,
-        tglKembali: req.body.tglKembali !== '' && req.body.tglKembali,
-        status: req.body.status,
-        denda: req.body.denda,
-      });
+    console.log(req.body)
+    const {
+      kodeBuku,
+      NIS,
+      namaPeminjam,
+      judulBuku,
+      tglPinjam,
+      batasPinjam,
+      tglKembali,
+      status,
+      denda,
+    } = req.body
+
+    // Check if the book is available
+    const book = await models.books.findOne({ where: { kodeBuku } })
+    if (!book || book.tersedia === 0) {
+      return res.status(404).json({ message: 'Book is not available.' })
+    }
+
+    // Create a new peminjaman entry
+    let peminjaman = await models.peminjaman.create({
+      kodeBuku,
+      NIS,
+      namaPeminjam,
+      judulBuku,
+      tglPinjam,
+      batasPinjam,
+      tglKembali: tglKembali !== '' ? tglKembali : null,
+      status,
+      denda,
+    })
+
+    // Update the tersedia value in the books table
+    await models.books.update({ tersedia: book.tersedia - 1 }, { where: { kodeBuku } })
+
     res.status(201).json({
       message: 'Berhasil Tambah Data Peminjaman',
       data: peminjaman,
-    });
+    })
   } catch (error) {
-    process.on("uncaughtException", function (err) {
-      console.log(err);
-    });
-    res.status(404).json({
-      message: error.message,
-    });
+    console.error(error)
+    res.status(500).json({
+      message: 'Terjadi kesalahan saat menambah data peminjaman',
+    })
   }
 }
 
@@ -81,7 +115,8 @@ controller.put = async function (req, res) {
   try {
     let peminjaman = await models.peminjaman.update(
       {
-        idBuku: req.body.idBuku,
+        kodeBuku: req.body.kodeBuku,
+        NIS: req.body.NIS,
         namaPeminjam: req.body.namaPeminjam,
         judulBuku: req.body.judulBuku,
         tglPinjam: req.body.tglPinjam,
@@ -94,72 +129,110 @@ controller.put = async function (req, res) {
         where: {
           idPeminjaman: req.params.idPeminjaman,
         },
-      }
-    );
+      },
+    )
     res.status(200).json({
       message: 'Berhasil Edit Data Peminjaman',
-    });
+    })
   } catch (error) {
     res.status(404).json({
       message: error.message,
-    });
+    })
   }
 }
+
 controller.delete = async function (req, res) {
   try {
-    await models.peminjaman.destroy(
-      {
-        where: {
-          idPeminjaman: req.params.idPeminjaman,
-        }
-      });
+    const peminjaman = await models.peminjaman.findOne({
+      where: {
+        idPeminjaman: req.params.idPeminjaman,
+      },
+    })
+
+    if (!peminjaman) {
+      return res.status(404).json({
+        message: 'Peminjaman tidak ditemukan',
+      })
+    }
+
+    const { kodeBuku } = peminjaman
+
+    // Delete the record from the peminjaman table
+    await models.peminjaman.destroy({
+      where: {
+        idPeminjaman: req.params.idPeminjaman,
+      },
+    })
+
+    // Increment the value of 'tersedia' column in the books table by 1
+    await models.books.increment('tersedia', { by: 1, where: { kodeBuku } })
+
     res.status(200).json({
       message: 'Berhasil Hapus Data Peminjaman',
     })
   } catch (error) {
-    res.status(404).json({
-      message: error,
+    res.status(500).json({
+      message: error.message,
     })
   }
 }
 
 controller.getSearch = async function (req, res) {
-  const search = req.query.keyword;
+  const search = req.query.keyword
   try {
     let peminjaman = await models.peminjaman.findAll({
-      attributes: ['idPeminjaman', 'idBuku', 'namaPeminjam', 'judulBuku', 'tglPinjam', 'batasPinjam', 'tglKembali', 'status', 'denda'],
+      attributes: [
+        'idPeminjaman',
+        'kodeBuku',
+        'namaPeminjam',
+        'judulBuku',
+        'tglPinjam',
+        'batasPinjam',
+        'tglKembali',
+        'status',
+        'denda',
+      ],
       where: {
-        [Op.or]: [{
-          idPeminjaman: {
-            [Op.like]: '%' + search + '%'
-          }
-        }, {
-          idBuku: {
-            [Op.like]: '%' + search + '%'
-          }
-        }, {
-          namaPeminjam: {
-            [Op.like]: '%' + search + '%'
-          }
-        }, {
-          judulBuku: {
-            [Op.like]: '%' + search + '%'
-          }
-        }, {
-          batasPinjam: {
-            [Op.like]: '%' + search + '%'
-          }
-        }, {
-          tglKembali: {
-            [Op.like]: '%' + search + '%'
-          }
-        }
-        ]
-      }
+        [Op.or]: [
+          {
+            idPeminjaman: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+          {
+            kodeBuku: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+          {
+            namaPeminjam: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+          {
+            judulBuku: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+          {
+            batasPinjam: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+          {
+            tglKembali: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+        ],
+      },
+    })
+    res.status(200).json({
+      message: 'Data Peminjaman',
+      data: peminjaman,
     })
   } catch (err) {
-
+    console.log(err)
   }
 }
-
-module.exports = controller;
+module.exports = controller

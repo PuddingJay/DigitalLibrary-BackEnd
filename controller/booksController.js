@@ -4,13 +4,14 @@ const { Op } = require('sequelize')
 const fs = require('fs')
 const PDFJS = require('pdfjs-dist')
 const path = require('path')
+const mime = require('mime')
 
 controller.getAll = async function (req, res) {
   try {
     let books = await models.books.findAll({
       attributes: [
         'idBuku',
-        'kode_buku',
+        'kodeBuku',
         'judul',
         'penulis',
         'Kategori',
@@ -259,7 +260,7 @@ controller.post = async function (req, res) {
     }
 
     let book = await models.books.create({
-      kode_buku: req.body.kode_buku,
+      kodeBuku: req.body.kodeBuku,
       judul: req.body.judul,
       penulis: req.body.penulis,
       Kategori: req.body.Kategori,
@@ -300,7 +301,7 @@ controller.put = async function (req, res) {
       },
       {
         where: {
-          kode_buku: req.body.kode_buku,
+          kodeBuku: req.body.kodeBuku,
         },
       },
     )
@@ -361,11 +362,11 @@ controller.getSearch = async function (req, res) {
   const { search } = req.params
   try {
     let books = await models.books.findAll({
-      // attributes: ["idBuku","kode_buku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
+      // attributes: ["idBuku","kodeBuku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
       where: {
         [Op.or]: [
           {
-            kode_buku: {
+            kodeBuku: {
               [Op.like]: `%${search}%`,
             },
           },
@@ -427,6 +428,7 @@ controller.getPdf = async function (req, res) {
     })
     if (book) {
       const filePath = path.join(__dirname, '..', book.file_ebook)
+
       res.sendFile(filePath)
       console.log(filePath)
     } else {
@@ -444,7 +446,7 @@ controller.getCategory = async function (req, res) {
       where: {
         [Op.or]: [
           {
-            kode_buku: req.params.kode_buku,
+            kodeBuku: req.params.kodeBuku,
           },
         ],
       },
