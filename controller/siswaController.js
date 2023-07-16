@@ -1,6 +1,7 @@
 import models from '../Config/model/index.js';
 import { Op } from 'sequelize';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 const siswaController = {};
 
@@ -61,16 +62,21 @@ siswaController.getOne = async function (req, res) {
 }
 
 siswaController.post = async function (req, res) {
+  const { NIS, Nama, Kelas, Jurusan } = req.body
+  const salt = await bcrypt.genSalt()
+  const hashPassword = await bcrypt.hash(NIS, salt)
   try {
     let siswa = await models.siswa.create({
-      NIS: req.body.NIS,
-      Nama: req.body.Nama,
-      Kelas: req.body.Kelas,
-      Jurusan: req.body.Jurusan,
+      Nama: Nama,
+      NIS: NIS,
+      password: hashPassword,
+      Kelas: Kelas,
+      Jurusan: Jurusan,
       jumlahPinjam: 0,
     })
+
     res.status(201).json({
-      message: 'Buku berhasil ditambahkan',
+      message: 'siswa berhasil ditambahkan',
       data: siswa,
     })
   } catch (error) {
@@ -188,26 +194,103 @@ siswaController.getSearch = async function (req, res) {
   }
 }
 
+// siswaController.login = async (req, res) => {
+//   const { Nama, NIS } = req.body
+
+//   try {
+//     // Cari pengguna dengan Nama, NIS, dan Kelas yang sesuai dalam tabel "users"
+//     const user = await models.siswa.findOne({ where: { Nama, NIS } })
+
+//     // Jika pengguna tidak ditemukan
+//     if (!user) {
+//       return res.status(401).json({ message: 'Nama, NIS, atau Kelas salah' })
+//     }
+
+//     // Membuat token JWT
+//     const token = jwt.sign({ userId: user.id }, 'secret_key', { expiresIn: '1h' })
+
+//     // Mengirim token sebagai respons
+//     res.status(200).json({ token })
+//   } catch (error) {
+//     console.error(error)
+//     res.status(500).json({ message: 'Terjadi kesalahan saat login' })
+//   }
+// }
 siswaController.login = async (req, res) => {
-  const { Nama, NIS } = req.body
-
   try {
-    // Cari pengguna dengan Nama, NIS, dan Kelas yang sesuai dalam tabel "users"
-    const user = await models.siswa.findOne({ where: { Nama, NIS } })
+    const siswa = await models.siswa.findAll({
+      where: {
+        Nama: req.body.Nama,
+      },
+    })
 
-    // Jika pengguna tidak ditemukan
-    if (!user) {
-      return res.status(401).json({ message: 'Nama, NIS, atau Kelas salah' })
+    const match = await bcrypt.compare(req.body.password, siswa[0].password)
+    if (!match) return res.status(400).json({ message: 'Wrong Password' })
+
+    const siswaId = siswa[0].NIS
+    const Nama = siswa[0].Nama
+
+    const accessToken = jwt.sign({ siswaId, Nama }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: '300s',
+    })
+    const refreshToken = jwt.sign({ siswaId, Nama }, process.env.REFRESH_TOKEN_SECRET, {
+      expiresIn: '1d',
+    })
+
+    await models.siswa.update(
+      { refreshToken: refreshToken },
+      {
+        where: {
+          NIS: siswaId,
+        },
+      },
+    )
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+      // secure : true
+    })
+    res.json({ accessToken })
+    console.log(refreshToken)
+  } catch (err) {
+    res.status(404).json({ message: 'Nama atau NIS salah' })
+  }
+}
+
+siswaController.logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken
+    if (!refreshToken) {
+      return res.sendStatus(204)
     }
 
-    // Membuat token JWT
-    const token = jwt.sign({ userId: user.id }, 'secret_key', { expiresIn: '1h' })
+    const siswa = await models.siswa.findOne({
+      where: {
+        refreshToken: refreshToken,
+      },
+    })
 
-    // Mengirim token sebagai respons
-    res.status(200).json({ token })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Terjadi kesalahan saat login' })
+    if (!siswa) {
+      return res.sendStatus(204)
+    }
+
+    const siswaId = siswa.NIS
+
+    await models.siswa.update(
+      { refreshToken: null },
+      {
+        where: {
+          NIS: siswaId,
+        },
+      },
+    )
+
+    res.clearCookie('refreshToken')
+    return res.sendStatus(200)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ message: 'Internal Server Error' })
   }
 }
 export default siswaController

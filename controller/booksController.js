@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import fs from 'fs';
 import PDFJS from 'pdfjs-dist';
 import path from 'path';
+import mime from 'mime';
 
 const controller = {};
 
@@ -112,7 +113,7 @@ controller.getOne = async function (req, res) {
       where: {
         [Op.or]: [
           {
-            kodeBuku: req.params.kodeBuku,
+            idBuku: req.params.idBuku,
           },
         ],
       },
@@ -325,41 +326,41 @@ controller.delete = async function (req, res) {
       where: {
         idBuku: req.params.idBuku,
       },
-    })
+    });
 
     if (!book) {
       return res.status(404).json({
         message: 'Buku tidak ditemukan',
-      })
+      });
     }
 
     // Hapus file cover buku
-    if (book.cover_buku && book.cover_buku.path !== '') {
-      fs.unlinkSync(book.cover_buku)
+    if (book.cover_buku && book.cover_buku.path !== '' && fs.existsSync(book.cover_buku.path)) {
+      fs.unlinkSync(book.cover_buku.path);
     }
 
     // Hapus file ebook
-    if (book.file_ebook && book.file_ebook.path !== '') {
-      fs.unlinkSync(book.file_ebook)
+    if (book.file_ebook && book.file_ebook.path !== '' && fs.existsSync(book.file_ebook.path)) {
+      fs.unlinkSync(book.file_ebook.path);
     }
 
     // Hapus data buku dari database
     await models.books.destroy({
       where: {
-        kodeBuku: req.params.kodeBuku,
+        idBuku: req.params.idBuku,
       },
-    })
+    });
 
     return res.status(200).json({
       message: 'Berhasil hapus data buku',
-    })
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       message: 'Terjadi kesalahan server',
-    })
+    });
   }
-}
+};
 
 controller.getSearch = async function (req, res) {
   const { search } = req.params
@@ -423,24 +424,32 @@ controller.getSearch = async function (req, res) {
 
 controller.getPdf = async function (req, res) {
   try {
-    // Cari PDF berdasarkan ID di database
-    let book = await models.books.findOne({
+    const currentDir = process.cwd(); // Get the current working directory
+
+    // Find the PDF in the database based on the ID
+    const book = await models.books.findOne({
       where: {
         idBuku: req.params.idBuku,
       },
-    })
+    });
+
     if (book) {
-      const filePath = path.join(__dirname, '..', book.file_ebook)
-      res.sendFile(filePath)
-      console.log(filePath)
+      const filePath = path.join(currentDir, book.file_ebook);
+
+      if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+        console.log(filePath);
+      } else {
+        return res.status(404).json({ message: 'PDF file not found.' });
+      }
     } else {
-      return res.status(404).json({ message: 'PDF not found.' })
+      return res.status(404).json({ message: 'PDF not found.' });
     }
   } catch (error) {
-    console.error('Error reading PDF:', error)
-    res.status(500).json({ message: 'Error reading PDF.' })
+    console.error('Error reading PDF:', error);
+    res.status(500).json({ message: 'Error reading PDF.', error: error.message });
   }
-}
+};
 
 controller.getCategory = async function (req, res) {
   try {

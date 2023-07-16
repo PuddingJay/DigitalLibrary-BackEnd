@@ -1,5 +1,5 @@
 import Sequelize from "sequelize";
-import db from '../database/db.js';
+import db from '../../Config/database/db.js'
 
 
 const admin = db.define(

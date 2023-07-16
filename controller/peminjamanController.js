@@ -97,7 +97,7 @@ controller.post = async function (req, res) {
     res.status(201).json({
       message: "Berhasil Tambah Data Peminjaman",
       data: peminjaman,
-    });
+    })
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -125,17 +125,17 @@ controller.put = async function (req, res) {
         where: {
           idPeminjaman: req.params.idPeminjaman,
         },
-      }
-    );
+      },
+    )
     res.status(200).json({
       message: "Berhasil Edit Data Peminjaman",
     });
   } catch (error) {
     res.status(404).json({
       message: error.message,
-    });
+    })
   }
-};
+}
 
 controller.delete = async function (req, res) {
   try {
@@ -175,7 +175,7 @@ controller.delete = async function (req, res) {
 
 
 controller.getSearch = async function (req, res) {
-  const search = req.query.keyword;
+  const search = req.query.keyword
   try {
     let peminjaman = await models.peminjaman.findAll({
       attributes: [
