@@ -76,8 +76,7 @@ siswaController.post = async function (req, res) {
     })
 
     res.status(201).json({
-      message: 'siswa berhasil ditambahkan',
-      data: siswa,
+      message: 'Siswa Berhasil Ditambahkan',
     })
   } catch (error) {
     process.on('uncaughtException', function (err) {
@@ -246,7 +245,7 @@ siswaController.login = async (req, res) => {
       },
     )
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('refreshTokenSiswa', refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
       // secure : true
@@ -260,7 +259,7 @@ siswaController.login = async (req, res) => {
 
 siswaController.logout = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken
+    const refreshToken = req.cookies.refreshTokenSiswa
     if (!refreshToken) {
       return res.sendStatus(204)
     }
@@ -286,7 +285,7 @@ siswaController.logout = async (req, res) => {
       },
     )
 
-    res.clearCookie('refreshToken')
+    res.clearCookie('refreshTokenSiswa')
     return res.sendStatus(200)
   } catch (err) {
     console.log(err)

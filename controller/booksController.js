@@ -43,69 +43,6 @@ controller.getAll = async function (req, res) {
   }
 }
 
-// controller.getOne = async function (req, res) {
-//   try {
-//     console.log(req.params);
-//     let books = await models.books.findAll({
-//       where: {
-//         [Op.or]: [
-//           {
-//             idBuku: req.params.idBuku,
-//           },
-//         ],
-//       },
-//     });
-
-//     if (books.length > 0) {
-//       const filePath = files.file_ebook[0] ? req.files.file_ebook[0].path : undefined;
-
-//       if (!filePath) {
-//         // Jika path file tidak ditemukan
-//         res.status(404).json({
-//           message: 'File not found',
-//         });
-//         return;
-//       }
-
-//       const data = new Uint8Array(fs.readFileSync(filePath));
-//       PDFJS.getDocument(data).promise.then(pdf => {
-//         const totalNumPages = pdf.numPages;
-
-//         // Mengirimkan header dengan tipe konten PDF
-//         res.setHeader('Content-Type', 'application/pdf');
-
-//         // Menggunakan stream untuk mengirimkan PDF
-//         const stream = pdf.stream();
-//         stream.on('data', chunk => {
-//           res.write(chunk);
-//         });
-//         stream.on('end', () => {
-//           res.end();
-//         });
-//       }).catch(error => {
-//         console.error('Error reading PDF:', error);
-//         res.status(500).send('Error reading PDF');
-//       });
-//     } else {
-//       res.status(200).json({
-//         message: 'Tidak ada data',
-//         data: [],
-//       });
-//     }
-
-//     // Menambahkan blok kode di bawah ini
-//     res.status(200).json({
-//       message: 'Data buku ditemukan',
-//       data: books,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(404).json({
-//       message: error,
-//     });
-//   }
-// };
-
 controller.getOne = async function (req, res) {
   try {
     console.log(req.params)
@@ -136,116 +73,6 @@ controller.getOne = async function (req, res) {
     })
   }
 }
-
-// controller.getPdf = async function (req, res) {
-//   try {
-//     const books = await models.books.findOne({
-//       where: {
-//         [Op.or]: [
-//           {
-//             idBuku: req.params.idBuku,
-//           },
-//         ],
-//       },
-//       attributes: ['file_ebook'],
-//     });
-
-//     if (books) {
-//       const filePath = path.join(__dirname, '..', 'asset/file_ebook', books.file_ebook);
-
-//       // const stat = fs.statSync(filePath);
-//       // console.log(filePath);
-//       // console.log(stat);
-
-//       // res.set({
-//       //   'Content-Type': 'application/pdf',
-//       //   'Content-Length': stat.size,
-//       // });
-
-//       // const stream = fs.createReadStream(filePath);
-//       // stream.pipe(res);
-//       res.sendFile(filePath);
-//     } else {
-//       res.status(404).json({
-//         message: 'Buku tidak ditemukan',
-//       });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({
-//       message: 'Terjadi kesalahan saat mengambil PDF',
-//       error: error.message,
-//     });
-//   }
-// };
-
-// controller.getPdf= (req, res) => {
-//   const idBuku = req.params.idBuku;
-
-//    Pdf.findByPk(idBuku)
-//     .then((pdf) => {
-//       const filePath = path.join(__dirname, '../path/to/pdf/files/', pdf.filename);
-//       const fileStream = fs.createReadStream(filePath);
-//       res.setHeader('Content-Type', 'application/pdf');
-//       fileStream.pipe(res);
-//     })
-//     .catch((err) => {
-//       console.error(err);
-//       res.status(500).json({ error: 'Internal server error' });
-//     });
-//   const filePath = path.join(__dirname, `asset/file_ebook/${id}.pdf`);
-
-//   const stat = fs.statSync(filePath);
-//   const fileSize = stat.size;
-//   const range = req.headers.range;
-
-//   if (range) {
-//     const parts = range.replace(/bytes=/, "").split("-");
-//     const start = parseInt(parts[0], 10);
-//     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-//     const chunksize = (end - start) + 1;
-//     const file = fs.createReadStream(filePath, { start, end });
-//     const head = {
-//       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-//       'Accept-Ranges': 'bytes',
-//       'Content-Length': chunksize,
-//       'Content-Type': 'application/pdf',
-//     };
-
-//     res.writeHead(206, head);
-//     file.pipe(res);
-//   } else {
-//     const head = {
-//       'Content-Length': fileSize,
-//       'Content-Type': 'application/pdf',
-//     };
-//     res.writeHead(200, head);
-//     fs.createReadStream(filePath).pipe(res);
-//   }
-// };
-
-// controller.getPDF = async function (req, res) {
-//   try {
-//     const book = await models.books.findOne({
-//       where: {
-//         idBuku: req.params.idBuku,
-//       },
-//     });
-
-//     if (!book || !book.file_ebook) {
-//       return res.status(404).json({
-//         message: "File PDF tidak ditemukan",
-//       });
-//     }
-
-//     res.sendFile(book.file_ebook);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({
-//       message: "Terjadi kesalahan server",
-//     });
-//   }
-// };
 
 controller.post = async function (req, res) {
   try {
@@ -366,7 +193,7 @@ controller.getSearch = async function (req, res) {
   const { search } = req.params
   try {
     let books = await models.books.findAll({
-      attributes: ["kodeBuku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
+      attributes: ["idBuku", "kodeBuku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
       where: {
         [Op.or]: [
           {

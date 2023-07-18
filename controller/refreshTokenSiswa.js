@@ -6,7 +6,7 @@ const controller = {};
 
 controller.refreshToken = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshTokenSiswa;
     if (!refreshToken) {
       return res.status(401).json({ message: 'Missing refreshToken' });
     }

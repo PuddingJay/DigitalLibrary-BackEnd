@@ -49,8 +49,8 @@ POST http://localhost:3005/siswa/login
 Content-Type: application/json
 
 {
-  "Nama" : "Mamad",
-  "password" : "105219010"
+  "Nama" : "AldoGian",
+  "password" : "12345678"
 }
 
 ###
@@ -64,12 +64,13 @@ GET http://localhost:3005/siswa
 
 ###
 POST http://localhost:3005/siswa
+Content-Type: application/json
 
 {
   "NIS" : "15151",
-  "Nama": "Nama",
-  "Kelas": "Kelas",
-  "Jurusan" : "Jurusan"
+  "Nama": "Rizky",
+  "Kelas": "12",
+  "Jurusan" : "IPA-1"
 }
 
 ###
@@ -91,7 +92,7 @@ POST http://localhost:3005/peminjaman
 }
 
 ###
-GET http://localhost:3005/book
+GET http://localhost:3005/book/search/kimia
 
 ###
 GET http://localhost:3005/book/pdf/10
@@ -101,3 +102,6 @@ DELETE http://localhost:3005/book
 
 ###
 DELETE http://localhost:3005/peminjaman/35
+
+###
+DELETE http://localhost:3005/siswaLogout

@@ -84,7 +84,7 @@ router.post('/siswa/', controller.siswaController.post)
 router.put('/siswa/:NIS', controller.siswaController.put)
 router.delete('/siswa/:NIS', controller.siswaController.delete)
 router.post('/siswa/login', controller.siswaController.login)
-router.delete('/siswa/logout', controller.siswaController.logout)
+router.delete('/siswaLogout', controller.siswaController.logout)
 
 router.get('/admin', verifyToken, controller.adminController.getAdmin)
 router.post('/admin', controller.adminController.register)
