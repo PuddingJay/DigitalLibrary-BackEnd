@@ -19,8 +19,8 @@ const books = db.define(
   {
     freezeTableName: true,
     timestamps: false,
-  }
-);
+  },
+)
 
 books.removeAttribute("id");
 

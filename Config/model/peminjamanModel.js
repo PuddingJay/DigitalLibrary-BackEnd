@@ -1,7 +1,6 @@
 import Sequelize from "sequelize";
 import db from "../database/db.js";
 import books from "./booksModel.js"
-import models from './index.js'
 
 const peminjaman = db.define(
   "peminjaman",

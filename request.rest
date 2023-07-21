@@ -28,17 +28,49 @@ GET http://localhost:3005/token
 ###
 DELETE http://localhost:3005/logout
 
+
+###
+GET http://localhost:3005/siswatoken/
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaXN3YUlkIjoiMTA1MjE5MDEwIiwiTmFtYSI6Ik1hbWFkIiwiaWF0IjoxNjg4NjM4ODQ3LCJleHAiOjE2ODg2MzkxNDd9.06AUiYNDkxMzz2jFPbX0AWfQa1mr43-ED-Jw_EWJ7OQ
+
+###
+POST http://localhost:3005/admin
+Content-Type: application/json
+
+{
+  "name" : "Windu",
+  "username": "admin4",
+  "password": "perpustakaan1945", 
+  "confPassword": "perpustakaan1945"
+}
+
+###
+POST http://localhost:3005/siswa/login
+Content-Type: application/json
+
+{
+  "Nama" : "AldoGian",
+  "password" : "12345678"
+}
+
+###
+GET http://localhost:3005/token
+
+###
+DELETE http://localhost:3005/logout
+
 ###
 GET http://localhost:3005/siswa
 
 ###
 POST http://localhost:3005/siswa
+Content-Type: application/json
 
 {
   "NIS" : "15151",
-  "Nama": "Nama",
-  "Kelas": "Kelas",
-  "Jurusan" : "Jurusan"
+  "Nama": "Rizky",
+  "Kelas": "12",
+  "Jurusan" : "IPA-1"
 }
 
 ###
@@ -60,7 +92,16 @@ POST http://localhost:3005/peminjaman
 }
 
 ###
-GET http://localhost:3005/book
+GET http://localhost:3005/book/search/kimia
+
+###
+GET http://localhost:3005/book/pdf/10
+
+###
+DELETE http://localhost:3005/book
 
 ###
 DELETE http://localhost:3005/peminjaman/35
+
+###
+DELETE http://localhost:3005/siswaLogout

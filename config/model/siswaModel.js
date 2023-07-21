@@ -7,16 +7,18 @@ const siswa = db.define(
   {
     NIS: { type: Sequelize.INTEGER, primaryKey: true },
     Nama: Sequelize.STRING,
+    password: Sequelize.TEXT,
     Kelas: Sequelize.STRING,
     Jurusan: Sequelize.STRING,
     jumlahPinjam: Sequelize.INTEGER,
     waktuPinjam: Sequelize.DATE,
+    refreshToken: Sequelize.TEXT,
   },
   {
     freezeTableName: true,
     timestamps: false,
-  }
-);
+  },
+)
 
 siswa.removeAttribute("id");
 

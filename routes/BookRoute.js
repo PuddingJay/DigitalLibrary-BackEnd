@@ -1,9 +1,11 @@
 import express from "express";
 import multer from "multer";
 // import path from "path";
-// import db from "../Config/database/db.js";
+import db from "../Config/database/db.js";
 import controller from "../controller/indexController.js";
 import { verifyToken } from '../middleware/verifyToken.js';
+import tokenSiswa from '../middleware/tokenSiswa.js';
+import path from 'path'
 // import { refreshToken } from '../controller/RefreshToken.js'
 
 const router = express.Router();
@@ -32,7 +34,7 @@ const storagePdf = multer.diskStorage({
 
 const uploadPdf = multer({ storage: storagePdf })
 
-router.get('/book/:kodeBuku', controller.booksController.getOne)
+router.get('/book/:idBuku', controller.booksController.getOne)
 router.get('/book/pdf/:idBuku', controller.booksController.getPdf)
 router.get('/book/', controller.booksController.getAll)
 router.get('/book/search/:keyword', controller.booksController.getSearch)
@@ -52,7 +54,7 @@ router.post(
 )
 
 router.put(
-  '/book/:kodeBuku',
+  '/book/:idBuku',
   upload.fields([
     {
       name: 'cover_buku',
@@ -65,15 +67,7 @@ router.put(
   ]),
   controller.booksController.put,
 )
-router.delete('/book/:kodeBuku', controller.booksController.delete)
-
-router.get('/siswa/:NIS', controller.siswaController.getOne)
-router.get('/siswa/', controller.siswaController.getAll)
-router.get('/siswa/:search', controller.siswaController.getSearch)
-router.post('/siswa/', controller.siswaController.post)
-router.put('/siswa/:NIS', controller.siswaController.put)
-router.delete('/siswa/:NIS', controller.siswaController.delete)
-router.post('/siswa/login', controller.siswaController.login)
+router.delete('/book/:idBuku', controller.booksController.delete)
 
 router.get('/peminjaman/', controller.peminjamanController.getAll)
 router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne)
@@ -81,18 +75,22 @@ router.post('/peminjaman/', controller.peminjamanController.post)
 router.put('/peminjaman/:idPeminjaman', controller.peminjamanController.put)
 router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delete)
 
+router.get('/siswa/:NIS', controller.siswaController.getOne)
+router.get('/siswa/', controller.siswaController.getAll)
+router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
+router.get('/berhasilLogin', controller.refreshTokenSiswa.refreshToken)
+router.get('/siswa/:search', controller.siswaController.getSearch)
+router.post('/siswa/', controller.siswaController.post)
+router.put('/siswa/:NIS', controller.siswaController.put)
+router.delete('/siswa/:NIS', controller.siswaController.delete)
+router.post('/siswa/login', controller.siswaController.login)
+router.delete('/siswaLogout', controller.siswaController.logout)
+
 router.get('/admin', verifyToken, controller.adminController.getAdmin)
 router.post('/admin', controller.adminController.register)
 router.post('/login', controller.adminController.login)
 router.get('/token', controller.RefreshToken.refreshToken)
 // eslint-disable-next-line prettier/prettier
 router.delete('/logout', controller.adminController.logout)
-
-router.get('/peminjaman/', controller.peminjamanController.getAll);
-router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne);
-router.post('/peminjaman/', controller.peminjamanController.post);
-router.put('/peminjaman/:idPeminjaman', controller.peminjamanController.put);
-router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delete);
-
 
 export default router;
