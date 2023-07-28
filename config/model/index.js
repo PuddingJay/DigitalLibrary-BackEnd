@@ -1,7 +1,7 @@
-import booksModel from "./booksModel.js";
-import siswaModel from "./siswaModel.js";
-import peminjamanModel from "./peminjamanModel.js";
-import adminModel from './adminModel.js';
+const booksModel = require("./booksModel.js");
+const siswaModel = require("./siswaModel.js");
+const peminjamanModel = require("./peminjamanModel.js");
+const adminModel = require('./adminModel.js');
 
 const models = {
   books: booksModel,
@@ -10,4 +10,4 @@ const models = {
   admin: adminModel,
 };
 
-export default models;
+module.exports = models;

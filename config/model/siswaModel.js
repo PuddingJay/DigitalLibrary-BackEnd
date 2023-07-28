@@ -1,6 +1,5 @@
-import Sequelize from "sequelize";
-import db from "../database/db.js";
-
+const Sequelize = require("sequelize");
+const db = require("../database/db.js")
 
 const siswa = db.define(
   "siswa",
@@ -22,4 +21,4 @@ const siswa = db.define(
 
 siswa.removeAttribute("id");
 
-export default siswa;
+module.exports = siswa;

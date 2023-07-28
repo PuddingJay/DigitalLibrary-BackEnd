@@ -1,34 +1,40 @@
-import express from "express";
-import dotenv from 'dotenv';
-import cookieParser from "cookie-parser";
-import bodyParser from "body-parser";
-import cors from "cors";
-import path from 'path';
-import { fileURLToPath } from 'url';
-import BookRouter from "./routes/BookRoute.js";
-import db from './Config/database/db.js';
-// import admin from './Config/model/adminModel.js'
-dotenv.config();
+#!/opt/alt/alt-nodejs12/root/usr/bin/node
+const express = require('express');
 const app = express();
+const dotenv = require('dotenv');
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const path = require('path');
+const { fileURLToPath } = require('url');
+const BookRouter = require("./routes/BookRoute.js");
+const db = require('./Config/database/db.js');
+// const admin = require('./Config/model/adminModel.js');
+dotenv.config();
 app.use(cookieParser());
 
-
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(cors({ credentials: true, origin: '*' }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000')
-  res.header('Access-Control-Allow-Credentials', 'true')
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
-  res.header(
-    'Access-Control-Allow-Headers',
-    'x-access-token, Origin, X-Requested-With, Content-Type, Accept',
-  )
-  next()
-})
+  const allowedOrigins = ['http://localhost:3000', 'https://librarysmayuppentek.sch.id']; // Add other origins as needed
+  const origin = req.headers.origin;
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+  next();
+});
+
+// Remove the following line, as __dirname is already predefined in CommonJS modules
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 app.use("/asset/cover", express.static(path.join(__dirname, 'asset/cover')));
 app.use(BookRouter);
 
@@ -45,14 +51,15 @@ app.use((error, req, res, next) => {
       message: error.message,
     },
   })
-})
-try {
-  await db.authenticate();
-  console.log('Database Connected')
-  // await admin.sync();
-} catch (err) {
-  console.error(err);
-}
+});
 
+db.authenticate()
+  .then(() => {
+    console.log('Database Connected');
+    // admin.sync();
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 
-export default app;
+module.exports = app;

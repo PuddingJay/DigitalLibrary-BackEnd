@@ -1,9 +1,9 @@
-import models from '../Config/model/index.js';
-import { Op } from 'sequelize';
-import fs from 'fs';
-import PDFJS from 'pdfjs-dist';
-import path from 'path';
-import mime from 'mime';
+const models = require('../Config/model/index.js');
+const { Op } = require('sequelize');
+const fs = require('fs');
+const PDFJS = require('pdfjs-dist');
+const path = require('path');
+const mime = require('mime');
 
 const controller = {};
 
@@ -16,6 +16,7 @@ controller.getAll = async function (req, res) {
         'judul',
         'penulis',
         'Kategori',
+        'ringkasan',
         'tahun_terbit',
         'keterangan',
         'jumlah',
@@ -93,6 +94,7 @@ controller.post = async function (req, res) {
       judul: req.body.judul,
       penulis: req.body.penulis,
       Kategori: req.body.Kategori,
+      ringkasan: req.body.ringkasan,
       tahun_terbit: req.body.tahun_terbit,
       keterangan: req.body.keterangan,
       jumlah: req.body.jumlah,
@@ -124,6 +126,7 @@ controller.put = async function (req, res) {
         judul: req.body.judul,
         penulis: req.body.penulis,
         Kategori: req.body.Kategori,
+        ringkasan: req.body.ringkasan,
         tahun_terbit: req.body.tahun_terbit,
         keterangan: req.body.keterangan,
         jumlah: req.body.jumlah,
@@ -309,4 +312,4 @@ controller.getCategory = async function (req, res) {
   }
 }
 
-export default controller;
+module.exports = controller;

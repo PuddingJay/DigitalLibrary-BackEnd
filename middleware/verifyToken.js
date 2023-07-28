@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
-export const verifyToken = (req, res, next) => {
+const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (token == null) {
@@ -10,5 +10,7 @@ export const verifyToken = (req, res, next) => {
     if (err) { return res.sendStatus(403) }
     req.username = decoded.username;
     next();
-  })
-}
+  });
+};
+
+module.exports = verifyToken;

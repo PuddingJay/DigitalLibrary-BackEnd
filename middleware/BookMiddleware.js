@@ -1,7 +1,7 @@
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const DiskSTorage = require("../utils/multer");
+const DiskSTorage = require("../Utils/multer");
 
 const folder = path.join(process.cwd(), "/public/img-events");
 const diskStorage = new DiskSTorage(

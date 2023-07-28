@@ -1,6 +1,6 @@
-import models from "../Config/model/index.js";
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+const models = require('../Config/model/index.js');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const controller = {};
 
@@ -68,7 +68,7 @@ controller.login = async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      // secure : true
+      secure: true
     })
     res.json({ accessToken })
     console.log(refreshToken)
@@ -111,5 +111,4 @@ controller.logout = async (req, res) => {
   }
 };
 
-
-export default controller;
+module.exports = controller;

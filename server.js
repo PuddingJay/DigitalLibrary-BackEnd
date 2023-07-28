@@ -1,6 +1,5 @@
-import { createServer } from "http";
-import app from "./app.js";
-
+const { createServer } = require("http");
+const app = require("./app.js");
 
 const port = process.env.port || 3005;
 const server = createServer(app);
@@ -8,4 +7,3 @@ const server = createServer(app);
 server.listen(port, () => {
   console.log(`Server Start on port ${port}`);
 });
-

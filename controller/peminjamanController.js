@@ -1,7 +1,7 @@
-import models from '../Config/model/index.js';
-import { Op } from 'sequelize';
-import db from '../Config/database/db.js'
-import moment from 'moment';
+const models = require('../Config/model/index.js');
+const { Op } = require('sequelize');
+const db = require('../Config/database/db.js');
+const moment = require('moment');
 // import books from "../Config/model/booksModel.js";
 
 const controller = {};
@@ -233,4 +233,4 @@ controller.getSearch = async function (req, res) {
   }
 };
 
-export default controller;
+module.exports = controller;

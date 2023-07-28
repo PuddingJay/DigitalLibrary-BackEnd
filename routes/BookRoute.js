@@ -1,12 +1,10 @@
-import express from "express";
-import multer from "multer";
-// import path from "path";
-import db from "../Config/database/db.js";
-import controller from "../controller/indexController.js";
-import { verifyToken } from '../middleware/verifyToken.js';
-import tokenSiswa from '../middleware/tokenSiswa.js';
-import path from 'path'
-// import { refreshToken } from '../controller/RefreshToken.js'
+const express = require("express");
+const multer = require("multer");
+const db = require("../Config/database/db.js");
+const controller = require("../controller/indexController.js");
+const verifyToken = require('../middleware/verifyToken.js');
+const tokenSiswa = require('../middleware/tokenSiswa.js');
+const path = require('path');
 
 const router = express.Router();
 
@@ -93,4 +91,4 @@ router.get('/token', controller.RefreshToken.refreshToken)
 // eslint-disable-next-line prettier/prettier
 router.delete('/logout', controller.adminController.logout)
 
-export default router;
+module.exports = router;

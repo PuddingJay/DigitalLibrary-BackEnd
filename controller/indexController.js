@@ -1,9 +1,9 @@
-import booksController from "./booksController.js";
-import siswaController from "./siswaController.js";
-import peminjamanController from "./peminjamanController.js";
-import adminController from "./adminController.js";
-import RefreshToken from './RefreshToken.js';
-import refreshTokenSiswa from './refreshTokenSiswa.js'
+const booksController = require("./booksController.js");
+const siswaController = require("./siswaController.js");
+const peminjamanController = require("./peminjamanController.js");
+const adminController = require("./adminController.js");
+const RefreshToken = require('./RefreshToken.js');
+const refreshTokenSiswa = require('./refreshTokenSiswa.js');
 
 const controller = {
   booksController: booksController,
@@ -12,6 +12,6 @@ const controller = {
   adminController: adminController,
   RefreshToken: RefreshToken,
   refreshTokenSiswa: refreshTokenSiswa,
-}
+};
 
-export default controller;
+module.exports = controller;

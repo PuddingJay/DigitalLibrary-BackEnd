@@ -1,5 +1,5 @@
-import models from "../Config/model/index.js";
-import jwt from 'jsonwebtoken';
+const models = require('../Config/model/index.js');
+const jwt = require('jsonwebtoken');
 
 const controller = {};
 
@@ -39,4 +39,5 @@ controller.refreshToken = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-export default controller;
+
+module.exports = controller;

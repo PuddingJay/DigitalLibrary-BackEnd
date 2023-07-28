@@ -1,5 +1,5 @@
-import Sequelize from "sequelize";
-import db from "../database/db.js";
+const Sequelize = require("sequelize");
+const db = require("../database/db.js");
 
 const books = db.define(
   "books",
@@ -24,4 +24,4 @@ const books = db.define(
 
 books.removeAttribute("id");
 
-export default books;
+module.exports = books;

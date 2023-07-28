@@ -1,5 +1,5 @@
-import Sequelize from "sequelize";
-import db from '../../Config/database/db.js'
+const Sequelize = require("sequelize");
+const db = require("../database/db.js")
 
 
 const admin = db.define(
@@ -16,4 +16,4 @@ const admin = db.define(
   }
 );
 
-export default admin;
+module.exports = admin;

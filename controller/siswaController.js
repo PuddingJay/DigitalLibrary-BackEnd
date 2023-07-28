@@ -1,7 +1,7 @@
-import models from '../Config/model/index.js';
-import { Op } from 'sequelize';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+const models = require('../Config/model/index.js');
+const { Op } = require('sequelize');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const siswaController = {};
 
@@ -292,4 +292,4 @@ siswaController.logout = async (req, res) => {
     return res.status(500).json({ message: 'Internal Server Error' })
   }
 }
-export default siswaController
+module.exports = siswaController;

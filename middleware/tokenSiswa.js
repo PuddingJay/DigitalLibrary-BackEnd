@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
 const tokenSiswa = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -14,6 +14,6 @@ const tokenSiswa = (req, res, next) => {
     req.Nama = decoded.Nama;
     next();
   });
-}
+};
 
-export default tokenSiswa
+module.exports = tokenSiswa;
