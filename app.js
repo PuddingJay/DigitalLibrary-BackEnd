@@ -13,12 +13,23 @@ const db = require('./Config/database/db.js');
 dotenv.config();
 app.use(cookieParser());
 
-app.use(cors({ credentials: true, origin: '*' }));
+const allowedOrigins = ['http://localhost:3000', 'https://librarysmayuppentek.sch.id'];
+
+app.use(cors({
+  credentials: true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(function (req, res, next) {
-  const allowedOrigins = ['http://localhost:3000', 'https://librarysmayuppentek.sch.id']; // Add other origins as needed
   const origin = req.headers.origin;
 
   if (allowedOrigins.includes(origin)) {
@@ -31,6 +42,7 @@ app.use(function (req, res, next) {
 
   next();
 });
+
 
 // Remove the following line, as __dirname is already predefined in CommonJS modules
 // const __dirname = path.dirname(fileURLToPath(import.meta.url));

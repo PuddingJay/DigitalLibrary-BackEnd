@@ -2,6 +2,7 @@ const models = require('../Config/model/index.js');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const xlsx = require('xlsx');
 
 const siswaController = {};
 
@@ -34,17 +35,13 @@ siswaController.getOne = async function (req, res) {
     console.log(req.params)
     let siswa = await models.siswa.findAll({
       where: {
-        [Op.or]: [
-          {
-            NIS: req.params.NIS,
-          },
-        ],
+        NIS: req.params.NIS,
       },
     })
     // let books = await models.books.findAll({})
     if (siswa.length > 0) {
       res.status(200).json({
-        message: 'Data buku ditemukan',
+        message: 'Data siswa ditemukan',
         data: siswa,
       })
     } else {
@@ -63,9 +60,22 @@ siswaController.getOne = async function (req, res) {
 
 siswaController.post = async function (req, res) {
   const { NIS, Nama, Kelas, Jurusan } = req.body
-  const salt = await bcrypt.genSalt()
-  const hashPassword = await bcrypt.hash(NIS, salt)
   try {
+    // Check if NIS already exists
+    const existingSiswa = await models.siswa.findOne({
+      where: {
+        NIS: NIS,
+      },
+    });
+
+    if (existingSiswa) {
+      return res.status(400).json({
+        message: 'NIS already exists in the table',
+      });
+    }
+
+    const salt = await bcrypt.genSalt()
+    const hashPassword = await bcrypt.hash(NIS, salt)
     let siswa = await models.siswa.create({
       Nama: Nama,
       NIS: NIS,
@@ -193,28 +203,6 @@ siswaController.getSearch = async function (req, res) {
   }
 }
 
-// siswaController.login = async (req, res) => {
-//   const { Nama, NIS } = req.body
-
-//   try {
-//     // Cari pengguna dengan Nama, NIS, dan Kelas yang sesuai dalam tabel "users"
-//     const user = await models.siswa.findOne({ where: { Nama, NIS } })
-
-//     // Jika pengguna tidak ditemukan
-//     if (!user) {
-//       return res.status(401).json({ message: 'Nama, NIS, atau Kelas salah' })
-//     }
-
-//     // Membuat token JWT
-//     const token = jwt.sign({ userId: user.id }, 'secret_key', { expiresIn: '1h' })
-
-//     // Mengirim token sebagai respons
-//     res.status(200).json({ token })
-//   } catch (error) {
-//     console.error(error)
-//     res.status(500).json({ message: 'Terjadi kesalahan saat login' })
-//   }
-// }
 siswaController.login = async (req, res) => {
   try {
     const siswa = await models.siswa.findAll({
@@ -245,21 +233,85 @@ siswaController.login = async (req, res) => {
       },
     )
 
-    res.cookie('refreshTokenSiswa', refreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-      // secure : true
-    })
-    res.json({ accessToken })
+    // res.cookie('refreshToken', refreshToken, {
+    //   httpOnly: true,
+    //   maxAge: 24 * 60 * 60 * 1000,
+    //   // secure : true
+    // })
+    res.json({ accessToken, refreshToken })
     console.log(refreshToken)
   } catch (err) {
     res.status(404).json({ message: 'Nama atau NIS salah' })
   }
 }
 
+siswaController.updatePassword = async (req, res) => {
+  try {
+    const { prevPassword, newPassword, confirmNewPassword } = req.body;
+    const siswaId = req.params.siswaId;
+
+    if (!siswaId) {
+      return res.status(400).json({ message: 'Invalid siswa ID' });
+    }
+
+    // Find the existing admin by ID
+    const siswa = await models.siswa.findOne({
+      where: {
+        NIS: siswaId
+      }
+    });
+
+    if (!siswa) {
+      return res.status(404).json({ message: 'siswa not found' });
+    }
+
+    if (!prevPassword) {
+      return res.status(400).json({ message: 'Password sebelumnya harus disediakan' });
+    }
+
+    if (!prevPassword || !newPassword || !confirmNewPassword) {
+      return res.status(400).json({ message: 'Semua kolom harus diisi' });
+    }
+
+    // If prevPassword is provided, check if it matches the existing password
+    if (prevPassword) {
+      const match = await bcrypt.compare(prevPassword, siswa.password);
+      if (!match) {
+        return res.status(400).json({ message: 'Password sebelumnya salah' });
+      }
+    }
+
+    // Check if newPassword and confirmNewPassword match
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({ message: 'Password baru dan konfirmasi password tidak cocok' });
+    }
+
+    if (newPassword.length < 5) {
+      return res.status(400).json({ message: 'Password baru harus terdiri dari minimal 5 karakter' });
+    }
+
+    // Update the siswa data
+    await models.siswa.update(
+      {
+        password: newPassword ? await bcrypt.hash(newPassword, await bcrypt.genSalt()) : siswa.password,
+      },
+      {
+        where: {
+          NIS: siswaId
+        },
+      }
+    );
+
+    res.json({ message: 'Berhasil ubah password' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 siswaController.logout = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshTokenSiswa
+    const refreshToken = req.params.refreshToken;
     if (!refreshToken) {
       return res.sendStatus(204)
     }
@@ -285,11 +337,65 @@ siswaController.logout = async (req, res) => {
       },
     )
 
-    res.clearCookie('refreshTokenSiswa')
-    return res.sendStatus(200)
+    // res.clearCookie('refreshToken');
+    return res.sendStatus(200);
   } catch (err) {
     console.log(err)
     return res.status(500).json({ message: 'Internal Server Error' })
+  }
+}
+
+siswaController.importExcel = async (req, res) => {
+  const file = req.file;
+  if (!file) {
+    return res.status(400).json({ error: 'No file provided' });
+  }
+
+  const workbook = xlsx.readFile(file.path);
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  const jsonData = xlsx.utils.sheet_to_json(sheet);
+
+  return res.json(jsonData);
+}
+
+siswaController.postExcel = async (req, res) => {
+  const studentsData = req.body; // Get the array of student objects from the request body
+
+  try {
+    const saltRounds = 10;
+
+    for (const studentData of studentsData) {
+      const { NIS, Nama, Kelas, Jurusan } = studentData;
+      const hashPassword = await bcrypt.hash(NIS.toString(), saltRounds);
+
+      try {
+        await models.siswa.create({
+          Nama: Nama,
+          NIS: NIS,
+          password: hashPassword,
+          Kelas: Kelas,
+          Jurusan: Jurusan,
+          jumlahPinjam: 0,
+        });
+      } catch (error) {
+        // Handle unique constraint violation error
+        if (error.code === 'ER_DUP_ENTRY') {
+          res.status(500).json({ message: 'Duplicate entry for NIS:', NIS });
+        } else {
+          throw error; // Rethrow other errors for standard error handling
+        }
+      }
+    }
+
+    res.status(201).json({
+      message: 'Siswa Berhasil Ditambahkan',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'An error occurred while adding the students.',
+    });
   }
 }
 module.exports = siswaController;

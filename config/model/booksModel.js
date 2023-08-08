@@ -15,6 +15,7 @@ const books = db.define(
     tersedia: Sequelize.INTEGER,
     cover_buku: Sequelize.STRING,
     file_ebook: Sequelize.STRING,
+    createdAt: Sequelize.DATE,
   },
   {
     freezeTableName: true,

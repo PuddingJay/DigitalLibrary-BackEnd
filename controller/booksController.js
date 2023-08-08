@@ -23,6 +23,7 @@ controller.getAll = async function (req, res) {
         'tersedia',
         'cover_buku',
         'file_ebook',
+        'createdAt',
       ],
     })
     if (books.length > 0) {
@@ -101,6 +102,7 @@ controller.post = async function (req, res) {
       tersedia: req.body.jumlah,
       cover_buku: coverPath,
       file_ebook: ebookPath,
+      createdAt: new Date(),
     });
 
     console.log(book)
@@ -121,7 +123,26 @@ controller.put = async function (req, res) {
   try {
     console.log(req.body);
     console.log(req.params);
-    let books = await models.books.update(
+
+    const book = await models.books.findOne({
+      where: {
+        kodeBuku: req.body.kodeBuku,
+      },
+    });
+
+    if (!book) {
+      return res.status(404).json({
+        message: 'Book not found. Unable to update.',
+      });
+    }
+
+    const newJumlah = parseInt(req.body.jumlah);
+    const oldJumlah = parseInt(book.jumlah);
+    const jumlahDiff = newJumlah - oldJumlah;
+
+    const newTersedia = parseInt(book.tersedia) + jumlahDiff;
+
+    await models.books.update(
       {
         judul: req.body.judul,
         penulis: req.body.penulis,
@@ -130,6 +151,7 @@ controller.put = async function (req, res) {
         tahun_terbit: req.body.tahun_terbit,
         keterangan: req.body.keterangan,
         jumlah: req.body.jumlah,
+        tersedia: newTersedia,
         cover_buku: req.files?.cover_buku ? req.files.cover_buku[0].path : '',
         file_ebook: req.files?.file_ebook ? req.files.file_ebook[0].path : '',
       },
@@ -138,15 +160,16 @@ controller.put = async function (req, res) {
           kodeBuku: req.body.kodeBuku,
         },
       },
-    )
+    );
+
     res.status(200).json({
       message: 'Berhasil ubah data buku',
-    })
+    });
   } catch (error) {
     console.log(error);
-    res.status(404).json({
+    res.status(500).json({
       message: error,
-    })
+    });
   }
 }
 

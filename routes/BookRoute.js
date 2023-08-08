@@ -21,6 +21,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
+// upload excel atau csv
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || // Excel (xlsx)
+    file.mimetype === 'text/csv') { // csv
+    cb(null, true);
+  } else {
+    cb(new Error('Hanya file Excel (xlsx) dan CSV yang diperbolehkan.'));
+  }
+};
+const uploadExcel = multer({ dest: 'uploads/', fileFilter: fileFilter });
+
 const storagePdf = multer.diskStorage({
   destination: function (req, filePdf, cb) {
     cb(null, './asset/file_ebook') // Menyimpan file di folder
@@ -76,19 +87,27 @@ router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delet
 router.get('/siswa/:NIS', controller.siswaController.getOne)
 router.get('/siswa/', controller.siswaController.getAll)
 router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
-router.get('/berhasilLogin', controller.refreshTokenSiswa.refreshToken)
+router.get('/berhasilLogin/:refreshToken', controller.refreshTokenSiswa.refreshToken)
 router.get('/siswa/:search', controller.siswaController.getSearch)
 router.post('/siswa/', controller.siswaController.post)
+router.post('/import-excel', uploadExcel.single('excelFile'), controller.siswaController.importExcel);
+router.post('/siswa-from-excel', controller.siswaController.postExcel)
 router.put('/siswa/:NIS', controller.siswaController.put)
+router.put('/siswa-update/:siswaId', controller.siswaController.updatePassword)
 router.delete('/siswa/:NIS', controller.siswaController.delete)
 router.post('/siswa/login', controller.siswaController.login)
-router.delete('/siswaLogout', controller.siswaController.logout)
+router.delete('/siswaLogout/:refreshToken', controller.siswaController.logout)
 
 router.get('/admin', verifyToken, controller.adminController.getAdmin)
 router.post('/admin', controller.adminController.register)
 router.post('/login', controller.adminController.login)
-router.get('/token', controller.RefreshToken.refreshToken)
+router.get('/token/:refreshToken', controller.RefreshToken.refreshToken)
+router.put('/admin-update/:adminId', controller.adminController.updateAdmin)
 // eslint-disable-next-line prettier/prettier
-router.delete('/logout', controller.adminController.logout)
+router.delete('/logout/:refreshToken', controller.adminController.logout)
+
+router.get('/booking-pinjam', controller.bookingPinjamController.getAll)
+router.post('/booking-pinjam', controller.bookingPinjamController.post)
+router.delete('/booking-pinjam/:idBookingPinjam', controller.bookingPinjamController.delete)
 
 module.exports = router;

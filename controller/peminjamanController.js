@@ -82,7 +82,7 @@ controller.post = async function (req, res) {
       denda,
     });
 
-    // Update the tersedia value in the books table
+    // Update nilai tersedia
     await models.books.update(
       { tersedia: book.tersedia - 1 },
       { where: { kodeBuku } }
@@ -109,33 +109,79 @@ controller.post = async function (req, res) {
 
 controller.put = async function (req, res) {
   try {
-    let peminjaman = await models.peminjaman.update(
-      {
-        kodeBuku: req.body.kodeBuku,
-        NIS: req.body.NIS,
-        namaPeminjam: req.body.namaPeminjam,
-        judulBuku: req.body.judulBuku,
-        tglPinjam: req.body.tglPinjam,
-        batasPinjam: req.body.batasPinjam,
-        tglKembali: req.body.tglKembali,
-        status: req.body.status,
-        denda: req.body.denda,
+    const existingPeminjaman = await models.peminjaman.findOne({
+      where: {
+        idPeminjaman: req.params.idPeminjaman,
       },
-      {
+    });
+
+    if (!existingPeminjaman) {
+      return res.status(404).json({
+        message: "Peminjaman not found",
+      });
+    }
+
+    let updatedValues = {
+      kodeBuku: req.body.kodeBuku,
+      NIS: req.body.NIS,
+      namaPeminjam: req.body.namaPeminjam,
+      judulBuku: req.body.judulBuku,
+      tglPinjam: req.body.tglPinjam,
+      batasPinjam: req.body.batasPinjam,
+      tglKembali: req.body.tglKembali,
+      status: req.body.status,
+      denda: req.body.denda,
+    };
+
+    if (existingPeminjaman.judulBuku !== updatedValues.judulBuku) {
+      // Book title has changed, update availability in books table
+      const existingBook = await models.books.findOne({
         where: {
-          idPeminjaman: req.params.idPeminjaman,
+          judul: existingPeminjaman.judulBuku,
         },
+      });
+
+      if (existingBook) {
+        // Increment 'tersedia' value by 1 for the old book
+        await existingBook.update({
+          tersedia: existingBook.tersedia + 1,
+        });
+      }
+
+      // Decrease 'tersedia' value by 1 for the new book
+      const newBook = await models.books.findOne({
+        where: {
+          judul: updatedValues.judulBuku,
+        },
+      });
+
+      if (!newBook || newBook.tersedia === 0) {
+        return res.status(404).json({ message: 'Book is not available.' });
+      }
+      if (newBook) {
+        await newBook.update({
+          tersedia: newBook.tersedia - 1,
+        });
+      }
+    }
+
+    await models.peminjaman.update(updatedValues, {
+      where: {
+        idPeminjaman: req.params.idPeminjaman,
       },
-    )
+    });
+
     res.status(200).json({
       message: "Berhasil Edit Data Peminjaman",
     });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       message: error.message,
-    })
+    });
   }
 }
+
+
 
 controller.delete = async function (req, res) {
   try {

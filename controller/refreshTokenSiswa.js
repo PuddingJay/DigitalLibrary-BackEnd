@@ -5,7 +5,7 @@ const controller = {};
 
 controller.refreshToken = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshTokenSiswa;
+    const refreshToken = req.params.refreshToken;
     if (!refreshToken) {
       return res.status(401).json({ message: 'Missing refreshToken' });
     }
@@ -17,12 +17,12 @@ controller.refreshToken = async (req, res) => {
     });
 
     if (!siswa) {
-      return res.status(403).json({ message: 'Invalid refreshToken' });
+      return res.status(403).json({ message: 'Invalid Data Siswa' });
     }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
       if (err) {
-        return res.status(403).json({ message: 'Invalid refreshToken' });
+        return res.status(403).json({ message: 'Invalid refreshToken!!' });
       }
 
       const siswaId = siswa.NIS;
