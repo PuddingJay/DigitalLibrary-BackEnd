@@ -19,8 +19,18 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname) // Mengatur nama file dengan timestamp
   },
 })
+const fileFilter = (req, file, cb) => {
+  // Supported mimetypes for PDF and images
+  const supportedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg']
 
-const upload = multer({ storage: storage })
+  if (supportedMimeTypes.includes(file.mimetype)) {
+    cb(null, true)
+  } else {
+    cb(new Error('Hanya file PDF dan gambar (jpg, png, jpeg) yang diperbolehkan.'))
+  }
+}
+
+const upload = multer({ storage: storage, fileFilter: fileFilter })
 
 const storagePdf = multer.diskStorage({
   destination: function (req, filePdf, cb) {
@@ -37,6 +47,7 @@ router.get('/book/:idBuku', controller.booksController.getOne)
 router.get('/book/pdf/:idBuku', controller.booksController.getPdf)
 router.get('/book/', controller.booksController.getAll)
 router.get('/book/search/:keyword', controller.booksController.getSearch)
+router.get('/topBooks/', controller.booksController.getLikes)
 router.post(
   '/book/',
   upload.fields([
@@ -67,6 +78,9 @@ router.put(
   controller.booksController.put,
 )
 router.delete('/book/:idBuku', controller.booksController.delete)
+router.get('/topBooks', controller.booksController.getLikes)
+router.put('/updateTop/:idBuku', controller.booksController.putLike)
+router.get('/check-kodeBuku/:kodeBuku', controller.booksController.checkKodeBuku)
 
 router.get('/peminjaman/', controller.peminjamanController.getAll)
 router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne)
@@ -74,24 +88,60 @@ router.post('/peminjaman/', controller.peminjamanController.post)
 router.put('/peminjaman/:idPeminjaman', controller.peminjamanController.put)
 router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delete)
 
+router.get('/kotaksaran', controller.saranController.getAll)
+router.get('/kotaksaran/:idSaran', controller.saranController.getOne)
+router.post('/kotaksaran', controller.saranController.post)
+// router.put('/kotaksaran/:idSaran', controller.saranController.put)
+router.delete('/kotaksaran/:idSaran', controller.saranController.delete)
+
+router.get('/komentar', controller.komentarController.getAll)
+router.get('/komentar/:kodeBuku', controller.komentarController.getOne)
+router.post('/komentar', controller.komentarController.post)
+router.put('/komentar/:idKomentar', controller.komentarController.put)
+router.delete('/komentar/', controller.komentarController.delete)
+
+router.get('/history', controller.riwayatController.getAll)
+router.get('/historyTanggal', controller.riwayatController.getbyTanggal)
+router.get('/history/:NamaAkun', controller.riwayatController.getOne)
+const history = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './asset/riwayat') // Menyimpan file di folder
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname) // Mengatur nama file dengan timestamp
+  },
+})
+
+const uploadHistory = multer({ storage: history })
+router.post(
+  '/history/',
+  uploadHistory.fields([
+    {
+      name: 'cover_buku',
+      maxCount: 1,
+    },
+  ]),
+  controller.riwayatController.post,
+)
+router.delete('/history/:idRiwayat', controller.riwayatController.delete)
+
 router.get('/siswa/:NIS', controller.siswaController.getOne)
 router.get('/siswa/', controller.siswaController.getAll)
 router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
-router.get('/berhasilLogin', controller.refreshTokenSiswa.refreshToken)
+router.get('/berhasilLogin/:refreshToken', controller.refreshTokenSiswa.refreshToken)
 router.get('/siswa/:search', controller.siswaController.getSearch)
 router.post('/siswa/', controller.siswaController.post)
 router.put('/siswa/:NIS', controller.siswaController.put)
 router.delete('/siswa/:NIS', controller.siswaController.delete)
 router.post('/siswa/login', controller.siswaController.login)
-router.delete('/siswa/logout', controller.siswaController.logout)
+router.delete('/siswaLogout/:refreshToken', controller.siswaController.logout)
 
 router.get('/admin', verifyToken, controller.adminController.getAdmin)
 router.post('/admin', controller.adminController.register)
 router.post('/login', controller.adminController.login)
-router.get('/token', controller.RefreshToken.refreshToken)
+router.get('/token/:refreshToken', controller.RefreshToken.refreshToken)
 // eslint-disable-next-line prettier/prettier
-router.delete('/logout', controller.adminController.logout)
-
+router.delete('/logout/:refreshToken', controller.adminController.logout)
 module.exports = router
 
 // const upload = multer({

@@ -37,9 +37,9 @@ CREATE TABLE `admin` (
 --
 
 LOCK TABLES `admin` WRITE;
-/*!40000 ALTER TABLE `admin` DISABLE KEYS */;
+/*!30000 ALTER TABLE `admin` DISABLE KEYS */;
 INSERT INTO `admin` VALUES (1,'Husni','admin','$2b$10$K6BIWIE6/RjDcHZyGOkbfeMmBKkSWZsDFdnoaUv19Jxzr7D.e2kMC','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoxLCJuYW1lIjoiSHVzbmkiLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjg4NDAyMTc4LCJleHAiOjE2ODg0ODg1Nzh9.t2jSweetWPddJcR0S1lcjlcBWckx9p1svHGxzHJrxlo'),(2,'Budi','admin2','$2b$10$vNv5l4uWZ3m4AEjv5xuwf.u1g0BsEzBNO/7S2JIixdV2cRRu3.P/6','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoyLCJuYW1lIjoiQnVkaSIsInVzZXJuYW1lIjoiYWRtaW4yIiwiaWF0IjoxNjg3NzUzNDI3LCJleHAiOjE2ODc4Mzk4Mjd9.1GbFBeGxfC_brsj6ywtLvSGazcA2jVOQZg2FTqnsxSc'),(3,'Ahmad','admin3','$2b$10$9mhbslAdIo3XBc0abdL5oeCn6yIgCqCqNdrhF0RdOEyTPZLrpRyM2','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjozLCJuYW1lIjoiQWhtYWQiLCJ1c2VybmFtZSI6ImFkbWluMyIsImlhdCI6MTY4ODQwMDczNiwiZXhwIjoxNjg4NDg3MTM2fQ.wG0ebYSrnddqfwzpKb87KIpPwmZwnOc9Js0TMO2wHc8'),(4,'Ahmad','admin3','$2b$10$bht0idOLSRsdkRwWP2dwbezija4dXv5yhagX0AFNta4d5aLcrouey',NULL),(5,'Windu','admin4','$2b$10$SvoiY8ucbBt35Ab.LProM.UWwyWHAQtMR.nBAjZuW34HkFa2d6o26',NULL),(6,'Sekar','admin5','perpustakaan1945',NULL);
-/*!40000 ALTER TABLE `admin` ENABLE KEYS */;
+/*!30000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

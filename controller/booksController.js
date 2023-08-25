@@ -1,10 +1,10 @@
-const models = require('../Config/model/index')
-const controller = {}
+const models = require('../Config/model/index.js')
 const { Op } = require('sequelize')
 const fs = require('fs')
-const PDFJS = require('pdfjs-dist')
+
 const path = require('path')
-const mime = require('mime')
+
+const controller = {}
 
 controller.getAll = async function (req, res) {
   try {
@@ -15,9 +15,11 @@ controller.getAll = async function (req, res) {
         'judul',
         'penulis',
         'Kategori',
+        'ringkasan',
         'tahun_terbit',
         'keterangan',
         'jumlah',
+        'tersedia',
         'cover_buku',
         'file_ebook',
       ],
@@ -40,69 +42,6 @@ controller.getAll = async function (req, res) {
     })
   }
 }
-
-// controller.getOne = async function (req, res) {
-//   try {
-//     console.log(req.params);
-//     let books = await models.books.findAll({
-//       where: {
-//         [Op.or]: [
-//           {
-//             idBuku: req.params.idBuku,
-//           },
-//         ],
-//       },
-//     });
-
-//     if (books.length > 0) {
-//       const filePath = files.file_ebook[0] ? req.files.file_ebook[0].path : undefined;
-
-//       if (!filePath) {
-//         // Jika path file tidak ditemukan
-//         res.status(404).json({
-//           message: 'File not found',
-//         });
-//         return;
-//       }
-
-//       const data = new Uint8Array(fs.readFileSync(filePath));
-//       PDFJS.getDocument(data).promise.then(pdf => {
-//         const totalNumPages = pdf.numPages;
-
-//         // Mengirimkan header dengan tipe konten PDF
-//         res.setHeader('Content-Type', 'application/pdf');
-
-//         // Menggunakan stream untuk mengirimkan PDF
-//         const stream = pdf.stream();
-//         stream.on('data', chunk => {
-//           res.write(chunk);
-//         });
-//         stream.on('end', () => {
-//           res.end();
-//         });
-//       }).catch(error => {
-//         console.error('Error reading PDF:', error);
-//         res.status(500).send('Error reading PDF');
-//       });
-//     } else {
-//       res.status(200).json({
-//         message: 'Tidak ada data',
-//         data: [],
-//       });
-//     }
-
-//     // Menambahkan blok kode di bawah ini
-//     res.status(200).json({
-//       message: 'Data buku ditemukan',
-//       data: books,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(404).json({
-//       message: error,
-//     });
-//   }
-// };
 
 controller.getOne = async function (req, res) {
   try {
@@ -134,116 +73,19 @@ controller.getOne = async function (req, res) {
     })
   }
 }
+controller.getLikes = async function (req, res) {
+  try {
+    // Fetch books from the database and sort by 'likes' in descending order
+    const books = await models.books.findAll({
+      order: [['likes', 'DESC']],
+      limit: 7,
+    })
 
-// controller.getPdf = async function (req, res) {
-//   try {
-//     const books = await models.books.findOne({
-//       where: {
-//         [Op.or]: [
-//           {
-//             idBuku: req.params.idBuku,
-//           },
-//         ],
-//       },
-//       attributes: ['file_ebook'],
-//     });
-
-//     if (books) {
-//       const filePath = path.join(__dirname, '..', 'asset/file_ebook', books.file_ebook);
-
-//       // const stat = fs.statSync(filePath);
-//       // console.log(filePath);
-//       // console.log(stat);
-
-//       // res.set({
-//       //   'Content-Type': 'application/pdf',
-//       //   'Content-Length': stat.size,
-//       // });
-
-//       // const stream = fs.createReadStream(filePath);
-//       // stream.pipe(res);
-//       res.sendFile(filePath);
-//     } else {
-//       res.status(404).json({
-//         message: 'Buku tidak ditemukan',
-//       });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({
-//       message: 'Terjadi kesalahan saat mengambil PDF',
-//       error: error.message,
-//     });
-//   }
-// };
-
-// controller.getPdf= (req, res) => {
-//   const idBuku = req.params.idBuku;
-
-//    Pdf.findByPk(idBuku)
-//     .then((pdf) => {
-//       const filePath = path.join(__dirname, '../path/to/pdf/files/', pdf.filename);
-//       const fileStream = fs.createReadStream(filePath);
-//       res.setHeader('Content-Type', 'application/pdf');
-//       fileStream.pipe(res);
-//     })
-//     .catch((err) => {
-//       console.error(err);
-//       res.status(500).json({ error: 'Internal server error' });
-//     });
-//   const filePath = path.join(__dirname, `asset/file_ebook/${id}.pdf`);
-
-//   const stat = fs.statSync(filePath);
-//   const fileSize = stat.size;
-//   const range = req.headers.range;
-
-//   if (range) {
-//     const parts = range.replace(/bytes=/, "").split("-");
-//     const start = parseInt(parts[0], 10);
-//     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-//     const chunksize = (end - start) + 1;
-//     const file = fs.createReadStream(filePath, { start, end });
-//     const head = {
-//       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-//       'Accept-Ranges': 'bytes',
-//       'Content-Length': chunksize,
-//       'Content-Type': 'application/pdf',
-//     };
-
-//     res.writeHead(206, head);
-//     file.pipe(res);
-//   } else {
-//     const head = {
-//       'Content-Length': fileSize,
-//       'Content-Type': 'application/pdf',
-//     };
-//     res.writeHead(200, head);
-//     fs.createReadStream(filePath).pipe(res);
-//   }
-// };
-
-// controller.getPDF = async function (req, res) {
-//   try {
-//     const book = await models.books.findOne({
-//       where: {
-//         idBuku: req.params.idBuku,
-//       },
-//     });
-
-//     if (!book || !book.file_ebook) {
-//       return res.status(404).json({
-//         message: "File PDF tidak ditemukan",
-//       });
-//     }
-
-//     res.sendFile(book.file_ebook);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({
-//       message: "Terjadi kesalahan server",
-//     });
-//   }
-// };
+    res.status(200).json({ data: books })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch books' })
+  }
+}
 
 controller.post = async function (req, res) {
   try {
@@ -264,12 +106,15 @@ controller.post = async function (req, res) {
       judul: req.body.judul,
       penulis: req.body.penulis,
       Kategori: req.body.Kategori,
+      ringkasan: req.body.ringkasan,
       tahun_terbit: req.body.tahun_terbit,
       keterangan: req.body.keterangan,
       jumlah: req.body.jumlah,
+      tersedia: req.body.jumlah,
       cover_buku: coverPath,
       file_ebook: ebookPath,
     })
+
     console.log(book)
     res.status(201).json({
       message: 'Buku berhasil ditambahkan',
@@ -278,7 +123,40 @@ controller.post = async function (req, res) {
   } catch (error) {
     console.log(error)
     res.status(500).json({
-      message: 'Terjadi kesalahan saat menambahkan buku',
+      message: error.message,
+    })
+  }
+}
+
+// In your bookController.js file
+controller.checkKodeBuku = async function (req, res) {
+  try {
+    const { kodeBuku } = req.params
+
+    // Check if kodeBuku already exists in the database
+    const existingBook = await models.books.findOne({
+      where: {
+        kodeBuku: kodeBuku,
+      },
+    })
+
+    if (existingBook) {
+      // Return a response indicating that kodeBuku already exists
+      return res.status(200).json({
+        exists: true,
+        message: 'Kode Buku already exists in the database.',
+      })
+    } else {
+      // Return a response indicating that kodeBuku does not exist
+      return res.status(200).json({
+        exists: false,
+        message: 'Kode Buku does not exist in the database.',
+      })
+    }
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+      message: 'Internal server error.',
     })
   }
 }
@@ -288,29 +166,136 @@ controller.put = async function (req, res) {
   try {
     console.log(req.body)
     console.log(req.params)
-    let books = await models.books.update(
-      {
-        judul: req.body.judul,
-        penulis: req.body.penulis,
-        Kategori: req.body.Kategori,
-        tahun_terbit: req.body.tahun_terbit,
-        keterangan: req.body.keterangan,
-        jumlah: req.body.jumlah,
-        cover_buku: req.files?.cover_buku ? req.files.cover_buku[0].path : '',
-        file_ebook: req.files?.file_ebook ? req.files.file_ebook[0].path : '',
+
+    const book = await models.books.findOne({
+      where: {
+        kodeBuku: req.body.kodeBuku,
       },
-      {
+    })
+
+    // Check if the book exists
+    if (!book) {
+      return res.status(404).json({
+        message: 'Book not found. Unable to update.',
+      })
+    }
+
+    // Calculate the difference between the new jumlah and the old jumlah
+    const newJumlah = parseInt(req.body.jumlah)
+    const oldJumlah = parseInt(book.jumlah)
+    const jumlahDiff = newJumlah - oldJumlah
+
+    // Calculate the new value for tersedia
+    const newTersedia = parseInt(book.tersedia) + jumlahDiff
+
+    // await models.books.update(
+    //   {
+    //     judul: req.body.judul,
+    //     penulis: req.body.penulis,
+    //     Kategori: req.body.Kategori,
+    //     ringkasan: req.body.ringkasan,
+    //     tahun_terbit: req.body.tahun_terbit,
+    //     keterangan: req.body.keterangan,
+    //     jumlah: req.body.jumlah,
+    //     tersedia: newTersedia,
+    //     file_ebook: req.files?.file_ebook ? req.files.file_ebook[0].path : '',
+    //     cover_buku: req.files?.cover_buku ? req.files.cover_buku[0].path : '',
+    //   },
+    //   {
+    //     where: {
+    //       kodeBuku: req.body.kodeBuku,
+    //     },
+    //   },
+    // )
+    let updateFields = {
+      judul: req.body.judul,
+      penulis: req.body.penulis,
+      Kategori: req.body.Kategori,
+      ringkasan: req.body.ringkasan,
+      tahun_terbit: req.body.tahun_terbit,
+      keterangan: req.body.keterangan,
+      jumlah: req.body.jumlah,
+      tersedia: newTersedia,
+    }
+
+    if (!req.files.cover_buku && !req.files.file_ebook) {
+      // Update only non-file fields when both cover_buku and file_ebook are null
+      await models.books.update(updateFields, {
         where: {
           kodeBuku: req.body.kodeBuku,
         },
-      },
-    )
+      })
+    } else if (!req.files.cover_buku) {
+      // Update fields excluding cover_buku when cover_buku is null
+      updateFields.file_ebook = req.files.file_ebook[0].path
+      await models.books.update(updateFields, {
+        where: {
+          kodeBuku: req.body.kodeBuku,
+        },
+      })
+    } else if (!req.files.file_ebook) {
+      // Update fields excluding file_ebook when file_ebook is null
+      updateFields.cover_buku = req.files.cover_buku[0].path
+      await models.books.update(updateFields, {
+        where: {
+          kodeBuku: req.body.kodeBuku,
+        },
+      })
+    } else {
+      // Update all fields when both cover_buku and file_ebook are not null
+      updateFields.cover_buku = req.files.cover_buku[0].path
+      updateFields.file_ebook = req.files.file_ebook[0].path
+      await models.books.update(updateFields, {
+        where: {
+          kodeBuku: req.body.kodeBuku,
+        },
+      })
+    }
+
     res.status(200).json({
       message: 'Berhasil ubah data buku',
     })
   } catch (error) {
     console.log(error)
-    res.status(404).json({
+    res.status(500).json({
+      message: error,
+    })
+  }
+}
+
+controller.putLike = async function (req, res) {
+  console.log('hello')
+  try {
+    const book = await models.books.findOne({
+      where: {
+        idBuku: req.body.idBuku,
+      },
+    })
+
+    // Check if the book exists
+    if (!book) {
+      return res.status(404).json({
+        message: 'Book not found. Unable to update.',
+      })
+    }
+
+    await models.books.update(
+      {
+        likes: req.body.likes,
+      },
+      {
+        where: {
+          idBuku: req.body.idBuku,
+        },
+      },
+    )
+
+    res.status(200).json({
+      message: 'Berhasil ubah data buku',
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
       message: error,
     })
   }
@@ -330,14 +315,13 @@ controller.delete = async function (req, res) {
       })
     }
 
-    // Hapus file cover buku
-    if (book.cover_buku && book.cover_buku.path !== '') {
-      fs.unlinkSync(book.cover_buku)
+    if (book.cover_buku && book.cover_buku.path !== '' && fs.existsSync(book.cover_buku.path)) {
+      fs.unlinkSync(book.cover_buku.path)
     }
 
     // Hapus file ebook
-    if (book.file_ebook && book.file_ebook.path !== '') {
-      fs.unlinkSync(book.file_ebook)
+    if (book.file_ebook && book.file_ebook.path !== '' && fs.existsSync(book.file_ebook.path)) {
+      fs.unlinkSync(book.file_ebook.path)
     }
 
     // Hapus data buku dari database
@@ -362,12 +346,23 @@ controller.getSearch = async function (req, res) {
   const { search } = req.params
   try {
     let books = await models.books.findAll({
-      // attributes: ["idBuku","kodeBuku", "judul", "penulis", "Kategori", "tahun_terbit", "keterangan", "jumlah", "cover_buku", "file_ebook"],
+      attributes: [
+        'idBuku',
+        'kodeBuku',
+        'judul',
+        'penulis',
+        'Kategori',
+        'tahun_terbit',
+        'keterangan',
+        'jumlah',
+        'cover_buku',
+        'file_ebook',
+      ],
       where: {
         [Op.or]: [
           {
             kodeBuku: {
-              [Op.like]: `%${search}%`,
+              [Op.like]: '%' + search + '%',
             },
           },
           {
@@ -420,23 +415,30 @@ controller.getSearch = async function (req, res) {
 
 controller.getPdf = async function (req, res) {
   try {
-    // Cari PDF berdasarkan ID di database
-    let book = await models.books.findOne({
+    const currentDir = process.cwd() // Get the current working directory
+
+    // Find the PDF in the database based on the ID
+    const book = await models.books.findOne({
       where: {
         idBuku: req.params.idBuku,
       },
     })
-    if (book) {
-      const filePath = path.join(__dirname, '..', book.file_ebook)
 
-      res.sendFile(filePath)
-      console.log(filePath)
+    if (book) {
+      const filePath = path.join(currentDir, book.file_ebook)
+
+      if (fs.existsSync(filePath)) {
+        res.sendFile(filePath)
+        console.log(filePath)
+      } else {
+        return res.status(404).json({ message: 'PDF file not found.' })
+      }
     } else {
       return res.status(404).json({ message: 'PDF not found.' })
     }
   } catch (error) {
     console.error('Error reading PDF:', error)
-    res.status(500).json({ message: 'Error reading PDF.' })
+    res.status(500).json({ message: 'Error reading PDF.', error: error.message })
   }
 }
 

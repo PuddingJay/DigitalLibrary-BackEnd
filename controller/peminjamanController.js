@@ -1,21 +1,16 @@
-const models = require('../Config/model/index')
-const controller = {}
+const models = require('../Config/model/index.js')
 const { Op } = require('sequelize')
+const db = require('../Config/database/db.js')
+const moment = require('moment')
+// import books from "../Config/model/booksModel.js";
+
+const controller = {}
 
 controller.getAll = async function (req, res) {
   try {
     let peminjaman = await db.query(
       'SELECT DISTINCT peminjaman.idPeminjaman, peminjaman.kodeBuku as kodeBuku, siswa.NIS, peminjaman.namaPeminjam, books.judul as judulBuku, peminjaman.tglPinjam, peminjaman.batasPinjam, peminjaman.tglKembali, peminjaman.denda, peminjaman.status as status FROM peminjaman JOIN books ON peminjaman.kodeBuku = books.kodeBuku JOIN siswa ON peminjaman.NIS = siswa.NIS;',
     )
-
-    // models.peminjaman.findAll(
-    //   {
-    //     include: {
-    //       model: models.books,
-    //       as: 'books'
-    //     },
-    //   }
-    // );
 
     if (peminjaman.length > 0) {
       const uniquePeminjaman = Array.from(new Set(peminjaman.map(JSON.stringify))).map(JSON.parse)
@@ -76,9 +71,11 @@ controller.post = async function (req, res) {
       status,
       denda,
     } = req.body
+    console.log(req.body)
 
     // Check if the book is available
     const book = await models.books.findOne({ where: { kodeBuku } })
+    console.log(kodeBuku)
     if (!book || book.tersedia === 0) {
       return res.status(404).json({ message: 'Book is not available.' })
     }
@@ -95,9 +92,17 @@ controller.post = async function (req, res) {
       status,
       denda,
     })
-
+    if (!kodeBuku || !NIS || !namaPeminjam || !judulBuku || !tglPinjam || !batasPinjam) {
+      return res.status(400).json({ message: 'Missing required fields in the request.' })
+    }
     // Update the tersedia value in the books table
     await models.books.update({ tersedia: book.tersedia - 1 }, { where: { kodeBuku } })
+
+    await models.siswa.increment('jumlahPinjam', { by: 1, where: { NIS } })
+    await models.siswa.update(
+      { waktuPinjam: moment().toDate() }, // Update waktuPinjam with current time
+      { where: { NIS } },
+    )
 
     res.status(201).json({
       message: 'Berhasil Tambah Data Peminjaman',
@@ -235,4 +240,5 @@ controller.getSearch = async function (req, res) {
     console.log(err)
   }
 }
+
 module.exports = controller

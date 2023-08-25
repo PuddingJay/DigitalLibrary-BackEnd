@@ -1,20 +1,22 @@
 const Sequelize = require('sequelize')
-const db = require('../database/db')
+const db = require('../database/db.js')
 
-var books = db.define(
+const books = db.define(
   'books',
   {
     idBuku: Sequelize.INTEGER,
-    kodeBuku: Sequelize.STRING,
+    kodeBuku: { type: Sequelize.INTEGER, primaryKey: true },
     judul: Sequelize.STRING,
     penulis: Sequelize.STRING,
     Kategori: Sequelize.STRING,
+    ringkasan: Sequelize.STRING,
     tahun_terbit: Sequelize.STRING,
     keterangan: Sequelize.STRING,
     jumlah: Sequelize.INTEGER,
-
+    tersedia: Sequelize.INTEGER,
     cover_buku: Sequelize.STRING,
     file_ebook: Sequelize.STRING,
+    likes: Sequelize.INTEGER,
   },
   {
     freezeTableName: true,
@@ -23,4 +25,5 @@ var books = db.define(
 )
 
 books.removeAttribute('id')
+
 module.exports = books

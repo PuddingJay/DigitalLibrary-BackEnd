@@ -1,13 +1,14 @@
-const models = require('../Config/model/index')
-const siswaController = {}
+const models = require('../Config/model/index.js')
 const { Op } = require('sequelize')
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+
+const siswaController = {}
 
 siswaController.getAll = async function (req, res) {
   try {
     let siswa = await models.siswa.findAll({
-      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan'],
+      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan', 'jumlahPinjam', 'waktuPinjam'],
     })
     if (siswa.length > 0) {
       res.status(200).json({
@@ -71,11 +72,11 @@ siswaController.post = async function (req, res) {
       password: hashPassword,
       Kelas: Kelas,
       Jurusan: Jurusan,
+      jumlahPinjam: 0,
     })
 
     res.status(201).json({
-      message: 'siswa berhasil ditambahkan',
-      data: siswa,
+      message: 'Siswa Berhasil Ditambahkan',
     })
   } catch (error) {
     process.on('uncaughtException', function (err) {
@@ -89,21 +90,35 @@ siswaController.post = async function (req, res) {
 
 siswaController.put = async function (req, res) {
   try {
-    console.log('req body', req.body)
-    let siswa = await models.siswa.update(
+    const currentNIS = req.params.NIS // Current NIS value
+    const newNIS = req.body.NIS // New NIS value
+
+    // Check if the new NIS value is different from the current NIS value
+    if (newNIS !== currentNIS) {
+      // Update the NIS value in the database for the corresponding anggota
+      await models.siswa.update({ NIS: newNIS }, { where: { NIS: currentNIS } })
+    }
+
+    // Update the other properties of the anggota
+    const newPassword = req.body.password
+    const salt = await bcrypt.genSalt()
+    const hashPassword = await bcrypt.hash(newPassword, salt)
+    await models.siswa.update(
       {
         Nama: req.body.Nama,
         Kelas: req.body.Kelas,
         Jurusan: req.body.Jurusan,
+        password: hashPassword,
       },
       {
         where: {
-          NIS: req.body.NIS,
+          NIS: currentNIS,
         },
       },
     )
+
     res.status(200).json({
-      message: 'Berhasil ubah data buku',
+      message: 'Berhasil ubah data anggota',
     })
   } catch (error) {
     res.status(404).json({
@@ -214,13 +229,23 @@ siswaController.login = async (req, res) => {
 
     const siswaId = siswa[0].NIS
     const Nama = siswa[0].Nama
+    const Kelas = siswa[0].Kelas
+    const Jurusan = siswa[0].Jurusan
 
-    const accessToken = jwt.sign({ siswaId, Nama }, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: '300s',
-    })
-    const refreshToken = jwt.sign({ siswaId, Nama }, process.env.REFRESH_TOKEN_SECRET, {
-      expiresIn: '1d',
-    })
+    const accessToken = jwt.sign(
+      { siswaId, Nama, Kelas, Jurusan },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: '300s',
+      },
+    )
+    const refreshToken = jwt.sign(
+      { siswaId, Nama, Kelas, Jurusan },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: '1d',
+      },
+    )
 
     await models.siswa.update(
       { refreshToken: refreshToken },
@@ -245,7 +270,7 @@ siswaController.login = async (req, res) => {
 
 siswaController.logout = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken
+    const refreshToken = req.params.refreshToken
     if (!refreshToken) {
       return res.sendStatus(204)
     }
@@ -271,7 +296,7 @@ siswaController.logout = async (req, res) => {
       },
     )
 
-    res.clearCookie('refreshToken')
+    // res.clearCookie('refreshToken');
     return res.sendStatus(200)
   } catch (err) {
     console.log(err)

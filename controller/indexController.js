@@ -6,6 +6,10 @@ const peminjamanController = require('./peminjamanController')
 const adminController = require('./adminController')
 const RefreshToken = require('./RefreshToken')
 const refreshTokenSiswa = require('./refreshTokenSiswa')
+const saranController = require('./saranController')
+
+const komentarController = require('./komentarController')
+const riwayatController = require('./riwayatController')
 
 const controller = {
   booksController: booksController,
@@ -14,6 +18,9 @@ const controller = {
   adminController: adminController,
   RefreshToken: RefreshToken,
   refreshTokenSiswa: refreshTokenSiswa,
+  saranController: saranController,
+  komentarController: komentarController,
+  riwayatController: riwayatController,
 }
 
 module.exports = controller

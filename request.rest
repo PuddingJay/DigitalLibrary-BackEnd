@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
   "name" : "Windu",
-  "username": "admin4",
+  "username": "admin6",
   "password": "perpustakaan1945", 
   "confPassword": "perpustakaan1945"
 }
@@ -76,21 +76,86 @@ GET http://localhost:3005/peminjaman
 
 ###
 POST http://localhost:3005/peminjaman
+Content-Type: application/json
 
-{
-    "kodeBuku" : "1.2.7",
-    "NIS": "105219036",
-    "namaPeminjam" : "Muhammad Windu Aji",
-    "judulBuku" : "Coba lagi",
+{ 
+    "kodeBuku" : "1.2.4",
+    "NIS": "15151",
+    "namaPeminjam" : "Rizky",
+    "judulBuku" : "Bahasa Indonesia",
     "tglPinjam" : "2023-03-31",
     "batasPinjam" : "2023-05-24",
     "tglKembali" : null,
-    "status" : "Belum Dikembalikan",
-    "denda" : null
+    "denda" : null,
+    "status" : "Belum Dikembalikan"
 }
 
 ###
-GET http://localhost:3005/book
+GET http://localhost:3005/pengunjung
+
+###
+GET http://localhost:3005/topBooks
+
+###
+GET http://localhost:3005/dislike/1
+###
+PUT http://localhost:3005/dislike/30
+Content-Type: application/json
+
+{ 
+    "dislike" : 1
+}
+
+###
+PUT http://localhost:3005/updateTop/30
+Content-Type: application/json
+
+{ 
+    "likes" : "1"
+}
+
 
 ###
 DELETE http://localhost:3005/peminjaman/35
+
+
+###
+GET http://localhost:3005/kotaksaran
+
+###
+POST http://localhost:3005/kotaksaran
+Content-Type: application/json
+
+{
+    "NIS": 105219001,
+    "pemberiSaran" : "Arsyad",
+    "saranJudulBuku" : "Komik lucu bahasa indonesia",
+    "saranPengarangBuku" : "Natashi kisimoto"
+}
+
+
+###
+POST http://localhost:3005/kategori
+Content-Type: application/json
+
+{
+   "namaKategori" : "Hiburan"
+}
+
+###
+GET http://localhost:3005/kategori
+
+###
+DELETE http://localhost:3005/peminjaman/4
+
+###
+POST http://localhost:3005/komentar
+Content-Type: application/json
+
+{
+    "NIS": 105219001,
+    "namaKomentator" : "Arsyad",
+    "kodeBuku" : "1.2.4",
+    "judulBuku" : "Bahasa Indonesia",
+    "textKomentar" : "bukunya keren abis"
+}

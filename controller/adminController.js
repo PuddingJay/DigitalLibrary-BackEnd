@@ -1,7 +1,4 @@
-/* eslint-disable prettier/prettier */
-const models = require('../Config/model/index')
-// import bcrypt from 'bcrypt'
-// import jwt from 'jsonwebtoken'
+const models = require('../Config/model/index.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -17,7 +14,6 @@ controller.getAdmin = async (req, res) => {
     console.log(err)
   }
 }
-// eslint-disable-next-line prettier/prettier
 
 controller.register = async (req, res) => {
   const { name, username, password, confPassword } = req.body
@@ -73,12 +69,13 @@ controller.login = async (req, res) => {
       },
     )
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-      // secure : true
-    })
-    res.json({ accessToken })
+    // res.cookie('refreshToken', refreshToken, {
+    //   httpOnly: true,
+    //   maxAge: 24 * 60 * 60 * 1000,
+    //   secure : true
+    // })
+
+    res.json({ accessToken, refreshToken })
     console.log(refreshToken)
   } catch (err) {
     res.status(404).json({ message: 'Username tidak ditemukan' })
@@ -87,7 +84,7 @@ controller.login = async (req, res) => {
 
 controller.logout = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken
+    const refreshToken = req.params.refreshToken
     if (!refreshToken) {
       return res.sendStatus(204)
     }
@@ -113,13 +110,12 @@ controller.logout = async (req, res) => {
       },
     )
 
-    res.clearCookie('refreshToken')
-    return res.sendStatus(200)
+    // res.clearCookie('refreshToken');
+    return res.json({ message: 'Data dihapus' })
   } catch (err) {
     console.log(err)
     return res.status(500).json({ message: 'Internal Server Error' })
   }
 }
 
-// eslint-disable-next-line prettier/prettier
 module.exports = controller

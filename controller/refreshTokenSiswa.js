@@ -1,6 +1,4 @@
-/* eslint-disable prettier/prettier */
-const models = require('../Config/model/index')
-// import jwt from 'jsonwebtoken'
+const models = require('../Config/model/index.js')
 const jwt = require('jsonwebtoken')
 
 const controller = {}
@@ -29,9 +27,15 @@ controller.refreshToken = async (req, res) => {
 
       const siswaId = siswa.NIS
       const Nama = siswa.Nama
-      const accessToken = jwt.sign({ siswaId, Nama }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '300s',
-      })
+      const Kelas = siswa.Kelas
+      const Jurusan = siswa.Jurusan
+      const accessToken = jwt.sign(
+        { siswaId, Nama, Kelas, Jurusan },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: '300s',
+        },
+      )
 
       res.json({ accessToken })
     })

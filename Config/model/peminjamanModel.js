@@ -1,21 +1,20 @@
-const Sequelize = require('sequelize')
-const db = require('../database/db')
-// import books from "./booksModel.js"
+const { DataTypes } = require('sequelize')
+const db = require('../database/db.js')
 const books = require('./booksModel.js')
 
 const peminjaman = db.define(
   'peminjaman',
   {
-    idPeminjaman: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    kodeBuku: Sequelize.STRING,
-    NIS: Sequelize.INTEGER,
-    namaPeminjam: Sequelize.STRING,
-    judulBuku: Sequelize.STRING,
-    tglPinjam: Sequelize.DATE,
-    batasPinjam: Sequelize.DATE,
-    tglKembali: Sequelize.DATE,
-    status: Sequelize.STRING,
-    denda: Sequelize.STRING,
+    idPeminjaman: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    kodeBuku: DataTypes.STRING,
+    NIS: DataTypes.INTEGER,
+    namaPeminjam: DataTypes.STRING,
+    judulBuku: DataTypes.STRING,
+    tglPinjam: DataTypes.DATE,
+    batasPinjam: DataTypes.DATE,
+    tglKembali: DataTypes.DATE,
+    status: DataTypes.STRING,
+    denda: DataTypes.STRING,
   },
   {
     freezeTableName: true,
@@ -33,4 +32,5 @@ books.belongsTo(peminjaman, {
 })
 
 peminjaman.removeAttribute('id')
+
 module.exports = peminjaman

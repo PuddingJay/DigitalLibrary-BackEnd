@@ -1,12 +1,11 @@
-const models = require('../Config/model/index')
-// import jwt from 'jsonwebtoken'
+const models = require('../Config/model/index.js')
 const jwt = require('jsonwebtoken')
 
 const controller = {}
 
 controller.refreshToken = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken
+    const refreshToken = req.params.refreshToken
     if (!refreshToken) {
       return res.status(401).json({ message: 'Missing refreshToken' })
     }
@@ -18,7 +17,7 @@ controller.refreshToken = async (req, res) => {
     })
 
     if (!admin) {
-      return res.status(403).json({ message: 'Invalid refreshToken' })
+      return res.status(403).json({ message: 'Bukan Admin' })
     }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
@@ -32,7 +31,7 @@ controller.refreshToken = async (req, res) => {
       const accessToken = jwt.sign({ adminId, name, username }, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '15s',
       })
-
+      req.adminId = decoded.id
       res.json({ accessToken })
     })
   } catch (err) {
