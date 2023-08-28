@@ -1,0 +1,162 @@
+GET http://localhost:3005/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjowLCJuYW1lIjoiV2luZHUiLCJ1c2VybmFtZSI6ImFkbWluNCIsImlhdCI6MTY4ODYyMzQ3MywiZXhwIjoxNjg4NjIzNDkzfQ.Y8B-F4R8gdw8mO0im8aFMchTs8ddg5JHzwPhny29LyI
+
+###
+POST http://localhost:3005/admin
+Content-Type: application/json
+
+{
+  "name" : "MyShopee",
+  "username": "shopee",
+  "password": "perpustakaan1945", 
+  "confPassword": "perpustakaan1945",
+  "role" : "admin"
+}
+
+###
+POST http://localhost:3005/login
+Content-Type: application/json
+
+{
+  "username" : "admin4",
+  "password" : "perpustakaan1945"
+}
+
+###
+GET http://localhost:3005/token
+
+###
+DELETE http://localhost:3005/logout
+
+
+###
+GET http://localhost:3005/siswatoken/
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaXN3YUlkIjoiMTA1MjE5MDEwIiwiTmFtYSI6Ik1hbWFkIiwiaWF0IjoxNjg4NjM4ODQ3LCJleHAiOjE2ODg2MzkxNDd9.06AUiYNDkxMzz2jFPbX0AWfQa1mr43-ED-Jw_EWJ7OQ
+
+###
+POST http://localhost:3005/admin
+Content-Type: application/json
+
+{
+  "name" : "Windu",
+  "username": "admin4",
+  "password": "perpustakaan1945", 
+  "confPassword": "perpustakaan1945"
+}
+
+###
+POST http://localhost:3005/siswa/login
+Content-Type: application/json
+
+{
+  "Nama" : "Mamad",
+  "password" : "105219010"
+}
+
+###
+GET http://localhost:3005/token
+
+###
+DELETE http://localhost:3005/logout
+
+###
+GET http://localhost:3005/siswa
+
+###
+POST http://localhost:3005/siswa
+
+{
+  "NIS" : "15151",
+  "Nama": "Nama",
+  "Kelas": "Kelas",
+  "Jurusan" : "Jurusan"
+}
+
+###
+GET http://localhost:3005/peminjaman
+
+###
+POST http://localhost:3005/peminjaman
+Content-Type: application/json
+
+{ 
+    "kodeBuku" : "1.2.4",
+    "NIS": "15151",
+    "namaPeminjam" : "Rizky",
+    "judulBuku" : "Bahasa Indonesia",
+    "tglPinjam" : "2023-03-31",
+    "batasPinjam" : "2023-05-24",
+    "tglKembali" : null,
+    "denda" : null,
+    "status" : "Belum Dikembalikan"
+}
+
+###
+GET http://localhost:3005/pengunjung
+
+###
+GET http://localhost:3005/topBooks
+
+###
+GET http://localhost:3005/dislike/1
+###
+PUT http://localhost:3005/dislike/30
+Content-Type: application/json
+
+{ 
+    "dislike" : 1
+}
+
+###
+PUT http://localhost:3005/updateTop/30
+Content-Type: application/json
+
+{ 
+    "likes" : "1"
+}
+
+
+###
+DELETE http://localhost:3005/peminjaman/35
+
+
+###
+GET http://localhost:3005/kotaksaran
+
+###
+POST http://localhost:3005/kotaksaran
+Content-Type: application/json
+
+{
+    "NIS": 105219001,
+    "pemberiSaran" : "Arsyad",
+    "saranJudulBuku" : "Komik lucu bahasa indonesia",
+    "saranPengarangBuku" : "Natashi kisimoto"
+}
+
+
+###
+POST http://localhost:3005/kategori
+Content-Type: application/json
+
+{
+   "namaKategori" : "Hiburan"
+}
+
+###
+GET http://localhost:3005/book
+
+###
+DELETE http://localhost:3005/peminjaman/4
+
+###
+POST http://localhost:3005/komentar
+Content-Type: application/json
+
+{
+    "NIS": 105219001,
+    "namaKomentator" : "Arsyad",
+    "kodeBuku" : "1.2.4",
+    "judulBuku" : "Bahasa Indonesia",
+    "textKomentar" : "bukunya keren abis"
+}
