@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 const jwt = require('jsonwebtoken')
 
-function tokenSiswa(req, res, next) {
+const tokenSiswa = (req, res, next) => {
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
   if (token == null) {
@@ -16,5 +16,4 @@ function tokenSiswa(req, res, next) {
   })
 }
 
-// eslint-disable-next-line prettier/prettier
 module.exports = tokenSiswa

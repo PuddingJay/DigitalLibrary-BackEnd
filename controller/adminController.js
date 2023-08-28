@@ -22,10 +22,21 @@ controller.register = async (req, res) => {
       message: 'Password tidak sama',
     })
 
-  const salt = await bcrypt.genSalt()
-  const hashPassword = await bcrypt.hash(password, salt)
-
   try {
+    const existingAdmin = await models.admin.findOne({
+      where: {
+        username: username,
+      },
+    })
+
+    if (existingAdmin) {
+      return res.status(400).json({
+        message: 'Username already exists',
+      })
+    }
+
+    const salt = await bcrypt.genSalt()
+    const hashPassword = await bcrypt.hash(password, salt)
     await models.admin.create({
       name: name,
       username: username,
@@ -89,6 +100,73 @@ controller.login = async (req, res) => {
     console.log(refreshToken)
   } catch (err) {
     res.status(404).json({ message: 'Username tidak ditemukan' })
+  }
+}
+
+controller.updateAdmin = async (req, res) => {
+  try {
+    const { name, username, prevPassword, newPassword, confirmNewPassword } = req.body
+    const adminId = req.params.adminId
+    console.log(adminId)
+
+    if (!adminId) {
+      return res.status(400).json({ message: 'Invalid admin ID' })
+    }
+
+    // Find the existing admin by ID
+    const admin = await models.admin.findOne({
+      where: {
+        id: adminId,
+      },
+    })
+
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' })
+    }
+
+    if (newPassword) {
+      if (!prevPassword) {
+        return res.status(400).json({ message: 'Password sebelumnya harus disediakan' })
+      }
+
+      const match = await bcrypt.compare(prevPassword, admin.password)
+      if (!match) {
+        return res.status(400).json({ message: 'Password sebelumnya salah' })
+      }
+
+      // Check if newPassword is at least 5 characters long
+      if (newPassword.length < 5) {
+        return res
+          .status(400)
+          .json({ message: 'Password baru harus terdiri dari minimal 5 karakter' })
+      }
+    }
+
+    // Check if newPassword and confirmNewPassword match
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({ message: 'Password baru dan konfirmasi password tidak cocok' })
+    }
+
+    // Update the admin data
+    await models.admin.update(
+      {
+        name: name || admin.name,
+        username: username || admin.username,
+        password: newPassword
+          ? await bcrypt.hash(newPassword, await bcrypt.genSalt())
+          : admin.password,
+      },
+      {
+        where: {
+          id: adminId,
+        },
+      },
+    )
+
+    res.json({ message: 'Berhasil ubah data admin' })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ message: 'Internal Server Error' })
   }
 }
 

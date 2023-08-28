@@ -3,8 +3,7 @@ const express = require('express')
 const router = express.Router()
 const db = require('../Config/database/db')
 const controller = require('../controller/indexController')
-// import controller from "../controller/indexController.js";
-// import { verifyToken } from '../middleware/verifyToken.js';
+
 const verifyToken = require('../middleware/verifyToken.js')
 const tokenSiswa = require('../middleware/tokenSiswa')
 const multer = require('multer')
@@ -19,7 +18,7 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname) // Mengatur nama file dengan timestamp
   },
 })
-const fileFilter = (req, file, cb) => {
+const ImageFilter = (req, file, cb) => {
   // Supported mimetypes for PDF and images
   const supportedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg']
 
@@ -30,7 +29,20 @@ const fileFilter = (req, file, cb) => {
   }
 }
 
-const upload = multer({ storage: storage, fileFilter: fileFilter })
+const upload = multer({ storage: storage, fileFilter: ImageFilter })
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || // Excel (xlsx)
+    file.mimetype === 'text/csv'
+  ) {
+    // csv
+    cb(null, true)
+  } else {
+    cb(new Error('Hanya file Excel (xlsx) dan CSV yang diperbolehkan.'))
+  }
+}
+const uploadExcel = multer({ dest: 'uploads/', fileFilter: fileFilter })
 
 const storagePdf = multer.diskStorage({
   destination: function (req, filePdf, cb) {
@@ -138,66 +150,33 @@ router.get('/siswa/', controller.siswaController.getAll)
 router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
 router.get('/berhasilLogin/:refreshToken', controller.refreshTokenSiswa.refreshToken)
 router.get('/siswa/:search', controller.siswaController.getSearch)
-router.post('/siswa/', controller.siswaController.post)
+router.post('/siswa/', controller.siswaController.register)
+router.post(
+  '/import-excel',
+  uploadExcel.single('excelFile'),
+  controller.siswaController.importExcel,
+)
+router.post('/siswa-from-excel', controller.siswaController.postExcel)
 router.put('/siswa/:NIS', controller.siswaController.put)
+router.put('/siswa-update/:siswaId', controller.siswaController.updatePassword)
+router.put('/siswa-naik-kelas', controller.siswaController.naikKelas)
 router.delete('/siswa/:NIS', controller.siswaController.delete)
 router.post('/siswa/login', controller.siswaController.login)
 router.delete('/siswaLogout/:refreshToken', controller.siswaController.logout)
+
+router.get('/data-pengunjung', controller.pengunjungController.getAll)
+router.post('/add-data-pengunjung', controller.pengunjungController.post)
+router.delete('/data-pengunjung/:idPengunjung', controller.pengunjungController.delete)
 
 router.get('/admin', verifyToken, controller.adminController.getAdmin)
 router.post('/admin', controller.adminController.register)
 router.post('/login', controller.adminController.login)
 router.get('/token/:refreshToken', controller.RefreshToken.refreshToken)
-// eslint-disable-next-line prettier/prettier
+router.put('/admin-update/:adminId', controller.adminController.updateAdmin)
 router.delete('/logout/:refreshToken', controller.adminController.logout)
+
+router.get('/booking-pinjam', controller.bookingPinjamController.getAll)
+router.post('/booking-pinjam', controller.bookingPinjamController.post)
+router.delete('/booking-pinjam/:idBookingPinjam', controller.bookingPinjamController.delete)
+
 module.exports = router
-
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination(req, file, cb) {
-//       cb(null, './files');
-//     },
-//     filename(req, file, cb) {
-//       cb(null, `${new Date().getTime()}_${file.originalname}`);
-//     }
-//   }),
-//   limits: {
-//     fileSize: 1000000 // max file size 1MB = 1000000 bytes
-//   },
-//   fileFilter(req, file, cb) {
-//     if (!file.originalname.match(/\.(jpeg|jpg|png|pdf|doc|docx|xlsx|xls)$/)) {
-//       return cb(
-//         new Error(
-//           'only upload files with jpg, jpeg, png, pdf, doc, docx, xslx, xls format.'
-//         )
-//       );
-//     }
-//     cb(undefined, true); // continue with upload
-//   }
-// });
-
-// Router.post(
-//   '/upload',
-//   upload.single('file'),
-//   async (req, res) => {
-//     try {
-//       const { title, description } = req.body;
-//       const { path, mimetype } = req.file;
-//       const file = new File({
-//         title,
-//         description,
-//         file_path: path,
-//         file_mimetype: mimetype
-//       });
-//       await file.save();
-//       res.send('file uploaded successfully.');
-//     } catch (error) {
-//       res.status(400).send('Error while uploading file. Try again later.');
-//     }
-//   },
-//   (error, req, res, next) => {
-//     if (error) {
-//       res.status(500).send(error.message);
-//     }
-//   }
-// );

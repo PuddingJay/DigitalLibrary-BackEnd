@@ -18,7 +18,7 @@ POST http://localhost:3005/login
 Content-Type: application/json
 
 {
-  "username" : "admin4",
+  "username" : "admin3",
   "password" : "perpustakaan1945"
 }
 
@@ -64,12 +64,13 @@ GET http://localhost:3005/siswa
 
 ###
 POST http://localhost:3005/siswa
+Content-Type: application/json
 
 {
   "NIS" : "15151",
-  "Nama": "Nama",
-  "Kelas": "Kelas",
-  "Jurusan" : "Jurusan"
+  "Nama": "Rizky",
+  "Kelas": "12",
+  "Jurusan" : "IPA-1"
 }
 
 ###

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 const models = require('../Config/model/index.js')
 const jwt = require('jsonwebtoken')
 
@@ -5,7 +6,7 @@ const controller = {}
 
 controller.refreshToken = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken
+    const refreshToken = req.params.refreshToken
     if (!refreshToken) {
       return res.status(401).json({ message: 'Missing refreshToken' })
     }
@@ -16,26 +17,21 @@ controller.refreshToken = async (req, res) => {
       },
     })
 
+    // eslint-disable-next-line prettier/prettier
     if (!siswa) {
-      return res.status(403).json({ message: 'Invalid refreshToken' })
+      return res.status(403).json({ message: 'Invalid Data Siswa' })
     }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
       if (err) {
-        return res.status(403).json({ message: 'Invalid refreshToken' })
+        return res.status(403).json({ message: 'Invalid refreshToken!!' })
       }
 
       const siswaId = siswa.NIS
       const Nama = siswa.Nama
-      const Kelas = siswa.Kelas
-      const Jurusan = siswa.Jurusan
-      const accessToken = jwt.sign(
-        { siswaId, Nama, Kelas, Jurusan },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-          expiresIn: '300s',
-        },
-      )
+      const accessToken = jwt.sign({ siswaId, Nama }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '300s',
+      })
 
       res.json({ accessToken })
     })

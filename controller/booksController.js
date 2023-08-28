@@ -22,6 +22,7 @@ controller.getAll = async function (req, res) {
         'cover_buku',
         'file_ebook',
         'isApproval',
+>>>>>>> origin/master
       ],
     })
     if (books.length > 0) {
@@ -142,6 +143,7 @@ controller.post = async function (req, res) {
       cover_buku: coverPath,
       file_ebook: ebookPath,
       isApproval: req.body.isApproval,
+      createdAt: new Date(),
     })
 
     console.log(book)
@@ -157,7 +159,7 @@ controller.post = async function (req, res) {
   }
 }
 
-// In your bookController.js file
+
 controller.checkKodeBuku = async function (req, res) {
   try {
     const { kodeBuku } = req.params
@@ -221,25 +223,7 @@ controller.put = async function (req, res) {
     // Calculate the new value for tersedia
     const newTersedia = parseInt(book.tersedia) + jumlahDiff
 
-    // await models.books.update(
-    //   {
-    //     judul: req.body.judul,
-    //     penulis: req.body.penulis,
-    //     Kategori: req.body.Kategori,
-    //     ringkasan: req.body.ringkasan,
-    //     tahun_terbit: req.body.tahun_terbit,
-    //     keterangan: req.body.keterangan,
-    //     jumlah: req.body.jumlah,
-    //     tersedia: newTersedia,
-    //     file_ebook: req.files?.file_ebook ? req.files.file_ebook[0].path : '',
-    //     cover_buku: req.files?.cover_buku ? req.files.cover_buku[0].path : '',
-    //   },
-    //   {
-    //     where: {
-    //       kodeBuku: req.body.kodeBuku,
-    //     },
-    //   },
-    // )
+    
     let updateFields = {
       judul: req.body.judul,
       penulis: req.body.penulis,

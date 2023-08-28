@@ -1,9 +1,10 @@
-const http = require('http')
-const app = require('./app')
+/* eslint-disable prettier/prettier */
+const { createServer } = require('http')
+const app = require('./app.js')
 
 const port = process.env.port || 3005
-const server = http.createServer(app)
+const server = createServer(app)
 
 server.listen(port, () => {
-  console.log('Server Start')
+  console.log(`Server Start on port ${port}`)
 })

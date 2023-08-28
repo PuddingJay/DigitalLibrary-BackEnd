@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 const Sequelize = require('sequelize')
 const db = require('../database/db')
 const admin = db.define(
@@ -15,4 +16,5 @@ const admin = db.define(
   },
 )
 
+// eslint-disable-next-line prettier/prettier
 module.exports = admin

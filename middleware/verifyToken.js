@@ -1,7 +1,6 @@
-/* eslint-disable prettier/prettier */
 const jwt = require('jsonwebtoken')
 
-function verifyToken(req, res, next) {
+const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
   if (token == null) {
@@ -16,5 +15,4 @@ function verifyToken(req, res, next) {
   })
 }
 
-// eslint-disable-next-line prettier/prettier
 module.exports = verifyToken
