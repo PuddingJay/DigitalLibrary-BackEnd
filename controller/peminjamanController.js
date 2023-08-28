@@ -9,7 +9,22 @@ const controller = {};
 controller.getAll = async function (req, res) {
   try {
     let peminjaman = await db.query(
-      'SELECT DISTINCT peminjaman.idPeminjaman, peminjaman.kodeBuku as kodeBuku, siswa.NIS, peminjaman.namaPeminjam, books.judul as judulBuku, peminjaman.tglPinjam, peminjaman.batasPinjam, peminjaman.tglKembali, peminjaman.denda, peminjaman.status as status FROM peminjaman JOIN books ON peminjaman.kodeBuku = books.kodeBuku JOIN siswa ON peminjaman.NIS = siswa.NIS;'
+      `SELECT 
+      DISTINCT peminjaman.idPeminjaman, 
+      peminjaman.kodeBuku as kodeBuku, 
+      siswa.NIS, 
+      peminjaman.namaPeminjam, 
+      books.judul as judulBuku, 
+      peminjaman.tglPinjam, 
+      peminjaman.batasPinjam, 
+      peminjaman.tglKembali, 
+      peminjaman.denda, 
+      peminjaman.status as status,
+      peminjaman.createdAt
+    FROM 
+      peminjaman 
+      JOIN books ON peminjaman.kodeBuku = books.kodeBuku 
+      JOIN siswa ON peminjaman.NIS = siswa.NIS;`
     );
 
     if (peminjaman.length > 0) {
@@ -31,11 +46,56 @@ controller.getAll = async function (req, res) {
   }
 };
 
+controller.getOnSiswa = async function (req, res) {
+  try {
+    const { NIS } = req.params; // Assuming the NIS is provided as a parameter
+
+    const query = `
+      SELECT
+        peminjaman.idPeminjaman,
+        peminjaman.kodeBuku,
+        siswa.NIS,
+        peminjaman.namaPeminjam,
+        books.judul AS judulBuku,
+        peminjaman.tglPinjam,
+        peminjaman.batasPinjam,
+        peminjaman.tglKembali,
+        peminjaman.denda,
+        peminjaman.status,
+        peminjaman.createdAt
+      FROM
+        peminjaman
+        JOIN books ON peminjaman.kodeBuku = books.kodeBuku
+        JOIN siswa ON peminjaman.NIS = siswa.NIS
+      WHERE
+        peminjaman.NIS = :NIS;
+    `;
+
+    const peminjaman = await db.query(query, { replacements: { NIS }, type: db.QueryTypes.SELECT });
+
+    if (peminjaman.length > 0) {
+      res.status(200).json({
+        message: 'Get Method Peminjaman On Siswa',
+        data: peminjaman,
+      });
+    } else {
+      res.status(200).json({
+        message: "Tidak Ada Data",
+        data: [],
+      });
+    }
+  } catch (err) {
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+};
+
 controller.getOne = async function (req, res) {
   try {
     let peminjaman = await models.peminjaman.findAll({
       where: {
-        idPeminjaman: req.params.nim,
+        idPeminjaman: req.params.idPeminjaman,
       },
     });
 
@@ -69,7 +129,6 @@ controller.post = async function (req, res) {
       return res.status(404).json({ message: 'Book is not available.' });
     }
 
-    // Create a new peminjaman entry
     let peminjaman = await models.peminjaman.create({
       kodeBuku,
       NIS,
@@ -80,9 +139,9 @@ controller.post = async function (req, res) {
       tglKembali: tglKembali !== "" ? tglKembali : null,
       status,
       denda,
+      createdAt: new Date,
     });
 
-    // Update nilai tersedia
     await models.books.update(
       { tersedia: book.tersedia - 1 },
       { where: { kodeBuku } }
@@ -106,7 +165,6 @@ controller.post = async function (req, res) {
   }
 };
 
-
 controller.put = async function (req, res) {
   try {
     const existingPeminjaman = await models.peminjaman.findOne({
@@ -121,6 +179,36 @@ controller.put = async function (req, res) {
       });
     }
 
+    const oldNIS = existingPeminjaman.NIS;
+    const newNIS = req.body.NIS;
+
+    if (oldNIS !== newNIS) {
+      const existingOldNIS = await models.siswa.findOne({
+        where: {
+          NIS: oldNIS,
+        },
+      });
+
+      const existingNewNIS = await models.siswa.findOne({
+        where: {
+          NIS: newNIS,
+        },
+      });
+
+      if (existingOldNIS) {
+        await existingOldNIS.update({
+          jumlahPinjam: existingOldNIS.jumlahPinjam - 1,
+        });
+      }
+
+      if (existingNewNIS) {
+        await existingNewNIS.update({
+          jumlahPinjam: existingNewNIS.jumlahPinjam + 1,
+          waktuPinjam: moment().toDate(),
+        });
+      }
+    }
+
     let updatedValues = {
       kodeBuku: req.body.kodeBuku,
       NIS: req.body.NIS,
@@ -131,10 +219,10 @@ controller.put = async function (req, res) {
       tglKembali: req.body.tglKembali,
       status: req.body.status,
       denda: req.body.denda,
+      createdAt: new Date,
     };
 
-    if (existingPeminjaman.judulBuku !== updatedValues.judulBuku) {
-      // Book title has changed, update availability in books table
+    if (existingPeminjaman.judulBuku != updatedValues.judulBuku) {
       const existingBook = await models.books.findOne({
         where: {
           judul: existingPeminjaman.judulBuku,
@@ -142,13 +230,11 @@ controller.put = async function (req, res) {
       });
 
       if (existingBook) {
-        // Increment 'tersedia' value by 1 for the old book
         await existingBook.update({
           tersedia: existingBook.tersedia + 1,
         });
       }
 
-      // Decrease 'tersedia' value by 1 for the new book
       const newBook = await models.books.findOne({
         where: {
           judul: updatedValues.judulBuku,
@@ -180,8 +266,6 @@ controller.put = async function (req, res) {
     });
   }
 }
-
-
 
 controller.delete = async function (req, res) {
   try {
@@ -218,7 +302,6 @@ controller.delete = async function (req, res) {
     });
   }
 };
-
 
 controller.getSearch = async function (req, res) {
   const search = req.query.keyword

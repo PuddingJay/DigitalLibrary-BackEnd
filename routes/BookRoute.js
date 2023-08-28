@@ -61,7 +61,6 @@ router.post(
   ]),
   controller.booksController.post,
 )
-
 router.put(
   '/book/:idBuku',
   upload.fields([
@@ -79,31 +78,36 @@ router.put(
 router.delete('/book/:idBuku', controller.booksController.delete)
 
 router.get('/peminjaman/', controller.peminjamanController.getAll)
-router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne)
+// router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne)
+router.get('/peminjaman/:NIS', controller.peminjamanController.getOnSiswa)
 router.post('/peminjaman/', controller.peminjamanController.post)
 router.put('/peminjaman/:idPeminjaman', controller.peminjamanController.put)
 router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delete)
 
-router.get('/siswa/:NIS', controller.siswaController.getOne)
+router.get('/siswa/:refreshToken', controller.siswaController.getOne)
 router.get('/siswa/', controller.siswaController.getAll)
 router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
 router.get('/berhasilLogin/:refreshToken', controller.refreshTokenSiswa.refreshToken)
 router.get('/siswa/:search', controller.siswaController.getSearch)
-router.post('/siswa/', controller.siswaController.post)
+router.post('/siswa/', controller.siswaController.register)
 router.post('/import-excel', uploadExcel.single('excelFile'), controller.siswaController.importExcel);
 router.post('/siswa-from-excel', controller.siswaController.postExcel)
 router.put('/siswa/:NIS', controller.siswaController.put)
 router.put('/siswa-update/:siswaId', controller.siswaController.updatePassword)
+router.put('/siswa-naik-kelas', controller.siswaController.naikKelas)
 router.delete('/siswa/:NIS', controller.siswaController.delete)
 router.post('/siswa/login', controller.siswaController.login)
 router.delete('/siswaLogout/:refreshToken', controller.siswaController.logout)
+
+router.get('/data-pengunjung', controller.pengunjungController.getAll)
+router.post('/add-data-pengunjung', controller.pengunjungController.post)
+router.delete('/data-pengunjung/:idPengunjung', controller.pengunjungController.delete)
 
 router.get('/admin', verifyToken, controller.adminController.getAdmin)
 router.post('/admin', controller.adminController.register)
 router.post('/login', controller.adminController.login)
 router.get('/token/:refreshToken', controller.RefreshToken.refreshToken)
 router.put('/admin-update/:adminId', controller.adminController.updateAdmin)
-// eslint-disable-next-line prettier/prettier
 router.delete('/logout/:refreshToken', controller.adminController.logout)
 
 router.get('/booking-pinjam', controller.bookingPinjamController.getAll)

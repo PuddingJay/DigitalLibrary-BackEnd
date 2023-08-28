@@ -1,5 +1,5 @@
 const models = require('../Config/model/index.js');
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const xlsx = require('xlsx');
@@ -34,8 +34,9 @@ siswaController.getOne = async function (req, res) {
   try {
     console.log(req.params)
     let siswa = await models.siswa.findAll({
+      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan', 'jumlahPinjam', 'waktuPinjam'],
       where: {
-        NIS: req.params.NIS,
+        refreshToken: req.params.refreshToken,
       },
     })
     // let books = await models.books.findAll({})
@@ -58,7 +59,7 @@ siswaController.getOne = async function (req, res) {
   }
 }
 
-siswaController.post = async function (req, res) {
+siswaController.register = async function (req, res) {
   const { NIS, Nama, Kelas, Jurusan } = req.body
   try {
     // Check if NIS already exists
@@ -100,31 +101,31 @@ siswaController.post = async function (req, res) {
 
 siswaController.put = async function (req, res) {
   try {
-    const currentNIS = req.params.NIS; // Current NIS value
-    const newNIS = req.body.NIS; // New NIS value
+    const currentNIS = req.params.NIS;
+    const newNIS = req.body.NIS;
 
-    // Check if the new NIS value is different from the current NIS value
-    if (newNIS !== currentNIS) {
-      // Update the NIS value in the database for the corresponding anggota
-      await models.siswa.update(
-        { NIS: newNIS },
-        { where: { NIS: currentNIS } }
-      );
-    }
-
-    // Update the other properties of the anggota
     await models.siswa.update(
       {
+        NIS: newNIS,
         Nama: req.body.Nama,
         Kelas: req.body.Kelas,
         Jurusan: req.body.Jurusan,
       },
-      {
-        where: {
-          NIS: currentNIS,
-        },
-      }
+      { where: { NIS: currentNIS } }
     );
+
+    await models.peminjaman.update(
+      { namaPeminjam: req.body.Nama },
+      { where: { NIS: currentNIS } }
+    )
+
+    await models.pengunjung.update(
+      {
+        nama: req.body.Nama,
+        kelas: req.body.Kelas,
+      },
+      { where: { NIS: currentNIS } }
+    )
 
     res.status(200).json({
       message: 'Berhasil ubah data anggota',
@@ -254,7 +255,6 @@ siswaController.updatePassword = async (req, res) => {
       return res.status(400).json({ message: 'Invalid siswa ID' });
     }
 
-    // Find the existing admin by ID
     const siswa = await models.siswa.findOne({
       where: {
         NIS: siswaId
@@ -266,7 +266,7 @@ siswaController.updatePassword = async (req, res) => {
     }
 
     if (!prevPassword) {
-      return res.status(400).json({ message: 'Password sebelumnya harus disediakan' });
+      return res.status(400).json({ message: 'Password sebelumnya harus diisi' });
     }
 
     if (!prevPassword || !newPassword || !confirmNewPassword) {
@@ -374,8 +374,8 @@ siswaController.postExcel = async (req, res) => {
           Nama: Nama,
           NIS: NIS,
           password: hashPassword,
-          Kelas: Kelas,
-          Jurusan: Jurusan,
+          Kelas: Kelas || "",
+          Jurusan: Jurusan || "",
           jumlahPinjam: 0,
         });
       } catch (error) {
@@ -396,6 +396,27 @@ siswaController.postExcel = async (req, res) => {
     res.status(500).json({
       message: 'An error occurred while adding the students.',
     });
+  }
+}
+
+siswaController.naikKelas = async (req, res) => {
+  try {
+    await models.siswa.update(
+      {
+        Kelas: Sequelize.literal('Kelas + 1')
+      },
+      {
+        where: {
+          Kelas: {
+            [Op.in]: ['10', '11']
+          }
+        }
+      }
+    )
+    return res.status(200).json({ message: 'Berhasil naik kelas' })
+  } catch (err) {
+    console.error('Error updating Kelas values:', err);
+    return res.status(500).json({ err: 'An error occurred while updating Kelas values' })
   }
 }
 module.exports = siswaController;

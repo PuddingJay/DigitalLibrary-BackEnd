@@ -15,6 +15,7 @@ const peminjaman = db.define(
     tglKembali: DataTypes.DATE,
     status: DataTypes.STRING,
     denda: DataTypes.STRING,
+    createdAt: DataTypes.DATE,
   },
   {
     freezeTableName: true,

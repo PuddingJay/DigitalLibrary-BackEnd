@@ -7,7 +7,19 @@ const db = require('../Config/database/db.js')
 controller.getAll = async function (req, res) {
   try {
     let bookingPinjam = await db.query(
-      'SELECT DISTINCT bookingpinjam.idBookingPinjam, siswa.NIS, siswa.Nama, books.kodeBuku, books.judul, bookingpinjam.waktuBooking, bookingpinjam.batasBooking, bookingpinjam.createdAt FROM bookingpinjam JOIN siswa ON bookingpinjam.NIS = siswa.NIS JOIN books ON bookingpinjam.kodeBuku = books.kodeBuku',
+      `SELECT 
+      DISTINCT bookingpinjam.idBookingPinjam, 
+      siswa.NIS, 
+      siswa.Nama, 
+      books.kodeBuku, 
+      books.judul, 
+      bookingpinjam.waktuBooking, 
+      bookingpinjam.batasBooking, 
+      bookingpinjam.createdAt 
+    FROM 
+      bookingpinjam 
+      JOIN siswa ON bookingpinjam.NIS = siswa.NIS 
+      JOIN books ON bookingpinjam.kodeBuku = books.kodeBuku`,
     )
 
     if (bookingPinjam.length > 0) {
@@ -60,13 +72,26 @@ controller.post = async function (req, res) {
     console.log(req.body)
     const { NIS, nama, kodeBuku, judulBuku, waktuBooking } = req.body
 
+    const existingBooking = await models.bookingPinjam.findOne({
+      where: {
+        NIS,
+        kodeBuku,
+      },
+    })
+
+    if (existingBooking) {
+      return res.status(400).json({
+        message: 'Kamu tidak bisa booking buku yang sama dua kali ',
+      })
+    }
+
     let bookingPinjam = await models.bookingPinjam.create({
       NIS,
       nama,
       kodeBuku,
       judulBuku,
       waktuBooking,
-      createdAt: new Date(),
+      createdAt: new Date,
     })
 
     res.status(201).json({
@@ -75,8 +100,8 @@ controller.post = async function (req, res) {
     })
   } catch (error) {
     console.error(error)
-    res.status(500).json({
-      message: 'Terjadi kesalahan saat booking buku',
+    res.status(400).json({
+      message: 'Terjadi kesalahan saat booking buku, periksa data yang diinput dan coba kembali',
     })
   }
 }
@@ -91,7 +116,7 @@ controller.delete = async function (req, res) {
 
     if (!bookingPinjam) {
       return res.status(404).json({
-        message: 'Saran tidak ditemukan',
+        message: 'Data tidak ditemukan',
       })
     }
 

@@ -136,11 +136,11 @@ controller.put = async function (req, res) {
       });
     }
 
-    const newJumlah = parseInt(req.body.jumlah);
-    const oldJumlah = parseInt(book.jumlah);
-    const jumlahDiff = newJumlah - oldJumlah;
+    // const newJumlah = parseInt(req.body.jumlah);
+    // const oldJumlah = parseInt(book.jumlah);
+    // const jumlahDiff = newJumlah - oldJumlah;
 
-    const newTersedia = parseInt(book.tersedia) + jumlahDiff;
+    // const newTersedia = parseInt(book.tersedia) + jumlahDiff;
 
     await models.books.update(
       {
@@ -151,7 +151,7 @@ controller.put = async function (req, res) {
         tahun_terbit: req.body.tahun_terbit,
         keterangan: req.body.keterangan,
         jumlah: req.body.jumlah,
-        tersedia: newTersedia,
+        tersedia: req.body.tersedia,
         cover_buku: req.files?.cover_buku ? req.files.cover_buku[0].path : '',
         file_ebook: req.files?.file_ebook ? req.files.file_ebook[0].path : '',
       },
