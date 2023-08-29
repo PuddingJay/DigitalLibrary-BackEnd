@@ -303,57 +303,5 @@ controller.delete = async function (req, res) {
   }
 };
 
-controller.getSearch = async function (req, res) {
-  const search = req.query.keyword
-  try {
-    let peminjaman = await models.peminjaman.findAll({
-      attributes: [
-        'idPeminjaman',
-        'kodeBuku',
-        'namaPeminjam',
-        'judulBuku',
-        'tglPinjam',
-        'batasPinjam',
-        'tglKembali',
-        'status',
-        'denda',
-      ],
-      where: {
-        [Op.or]: [
-          {
-            idPeminjaman: {
-              [Op.like]: "%" + search + "%",
-            },
-          },
-          {
-            kodeBuku: {
-              [Op.like]: "%" + search + "%",
-            },
-          },
-          {
-            namaPeminjam: {
-              [Op.like]: "%" + search + "%",
-            },
-          },
-          {
-            judulBuku: {
-              [Op.like]: "%" + search + "%",
-            },
-          {
-            tglKembali: {
-              [Op.like]: "%" + search + "%",
-            },
-          },
-        ],
-      },
-    });
-    res.status(200).json({
-      message: 'Data Peminjaman',
-      data: peminjaman,
-    });
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 module.exports = controller;

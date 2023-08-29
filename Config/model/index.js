@@ -11,6 +11,8 @@ const saranModel = require('./saranModel.js')
 const komentarModel = require('./komentarModel')
 const riwayatModel = require('./riwayatModel')
 const kategoribuku = require('./kategoriModel')
+const bookingPinjamModel = require('./bookingPinjamModel')
+const pengunjungModel = require('./pengunjungModel')
 
 const models = {
   books: booksModel,
@@ -21,6 +23,8 @@ const models = {
   komentar: komentarModel,
   riwayatbaca: riwayatModel,
   kategoribuku: kategoribuku,
+  bookingPinjam: bookingPinjamModel,
+  pengunjung: pengunjungModel,
 }
 
 module.exports = models

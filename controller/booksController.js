@@ -22,7 +22,6 @@ controller.getAll = async function (req, res) {
         'cover_buku',
         'file_ebook',
         'isApproval',
->>>>>>> origin/master
       ],
     })
     if (books.length > 0) {
@@ -223,7 +222,7 @@ controller.put = async function (req, res) {
     // Calculate the new value for tersedia
     const newTersedia = parseInt(book.tersedia) + jumlahDiff
 
-    
+
     let updateFields = {
       judul: req.body.judul,
       penulis: req.body.penulis,

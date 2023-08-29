@@ -27,4 +27,4 @@ const controller = {
   bookingPinjamController: bookingPinjamController,
 }
 
->>>>>>> origin/master
+module.exports = controller

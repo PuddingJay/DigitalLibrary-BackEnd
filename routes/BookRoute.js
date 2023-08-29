@@ -145,7 +145,7 @@ router.post(
 )
 router.delete('/history/:idRiwayat', controller.riwayatController.delete)
 
-router.get('/siswa/:NIS', controller.siswaController.getOne)
+router.get('/siswa/:refreshToken', controller.siswaController.getOne)
 router.get('/siswa/', controller.siswaController.getAll)
 router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
 router.get('/berhasilLogin/:refreshToken', controller.refreshTokenSiswa.refreshToken)
