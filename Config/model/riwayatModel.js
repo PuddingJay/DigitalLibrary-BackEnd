@@ -1,20 +1,30 @@
 /* eslint-disable prettier/prettier */
 const { DataTypes } = require('sequelize')
 const db = require('../database/db.js')
-const books = require('./booksModel.js')
+const buku = require('./booksModel.js')
 const siswa = require('./siswaModel.js')
 
 const riwayatbaca = db.define(
-  'riwayatbaca',
+  'membaca',
   {
+    siswa_NIS: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      reference: {
+        model: siswa,
+        key: 'NIS',
+      }
+    },
+    buku_kodeBuku: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      reference: {
+        model: buku,
+        key: 'kodeBuku',
+      }
+    },
     idRiwayat: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    NIS: DataTypes.INTEGER,
-    NamaAkun: DataTypes.STRING,
-    kodeBukuRiwayat: DataTypes.STRING,
-    judulRiwayat: DataTypes.STRING,
-    coverRiwayat: DataTypes.STRING,
-    tersediaRiwayat: DataTypes.INTEGER,
-    TanggalAkses: DataTypes.DATE,
+    createdAt: DataTypes.DATE,
   },
   {
     freezeTableName: true,
@@ -22,13 +32,15 @@ const riwayatbaca = db.define(
   },
 )
 
-riwayatbaca.belongsTo(books, {
-  foreignKey: 'kodeBukuRiwayat',
-  as: 'books',
+riwayatbaca.belongsTo(buku, {
+  foreignKey: 'buku_kodeBuku',
+  targetKey: 'kodeBuku',
+  as: 'buku',
 })
 
 riwayatbaca.belongsTo(siswa, {
-  foreignKey: 'NIS',
+  foreignKey: 'siswa_NIS',
+  targetKey: 'NIS',
   as: 'siswa',
 })
 

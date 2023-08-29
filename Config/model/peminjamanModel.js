@@ -1,15 +1,27 @@
-const { DataTypes } = require('sequelize')
-const db = require('../database/db.js')
-const books = require('./booksModel.js')
+const { DataTypes } = require("sequelize");
+const db = require("../database/db.js");
+const buku = require("./booksModel.js");
+const siswa = require("./siswaModel.js");
 
-const peminjaman = db.define(
-  'peminjaman',
+const meminjam = db.define(
+  "meminjam",
   {
-    idPeminjaman: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    kodeBuku: DataTypes.STRING,
-    NIS: DataTypes.INTEGER,
-    namaPeminjam: DataTypes.STRING,
-    judulBuku: DataTypes.STRING,
+    Buku_kodeBuku: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      reference: {
+        model: buku,
+        key: 'kodeBuku',
+      }
+    },
+    Siswa_NIS: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      reference: {
+        model: siswa,
+        key: 'NIS',
+      }
+    },
     tglPinjam: DataTypes.DATE,
     batasPinjam: DataTypes.DATE,
     tglKembali: DataTypes.DATE,
@@ -20,18 +32,22 @@ const peminjaman = db.define(
   {
     freezeTableName: true,
     timestamps: false,
-  },
-)
+  }
+);
 
-peminjaman.hasMany(books, {
-  foreignKey: 'kodeBuku',
-  as: 'books',
-})
-books.belongsTo(peminjaman, {
-  foreignKey: 'kodeBuku',
-  as: 'peminjaman',
-})
+meminjam.belongsTo(buku, { foreignKey: 'Buku_kodeBuku', as: 'buku' });
+meminjam.belongsTo(siswa, { foreignKey: 'Siswa_NIS', as: 'siswa' });
 
-peminjaman.removeAttribute('id')
+// peminjaman.sync()
+// peminjaman.hasMany(books, {
+//   foreignKey: 'kodeBuku',
+//   as: 'books'
+// });
+// books.belongsTo(peminjaman, {
+//   foreignKey: 'kodeBuku',
+//   as: 'peminjaman'
+// });
 
-module.exports = peminjaman
+meminjam.removeAttribute("id");
+
+module.exports = meminjam;

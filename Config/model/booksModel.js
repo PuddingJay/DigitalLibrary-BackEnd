@@ -1,22 +1,27 @@
-const Sequelize = require('sequelize')
-const db = require('../database/db.js')
+const { DataTypes } = require("sequelize");
+const db = require("../database/db.js");
 
-const books = db.define(
-  'books',
+const buku = db.define(
+  "buku",
   {
-    kodeBuku: { type: Sequelize.INTEGER, primaryKey: true },
-    judul: Sequelize.STRING,
-    penulis: Sequelize.STRING,
-    Kategori: Sequelize.STRING,
-    ringkasan: Sequelize.STRING,
-    tahun_terbit: Sequelize.STRING,
-    keterangan: Sequelize.STRING,
-    jumlah: Sequelize.INTEGER,
-    tersedia: Sequelize.INTEGER,
-    cover_buku: Sequelize.STRING,
-    file_ebook: Sequelize.STRING,
-    likes: Sequelize.INTEGER,
-    isApproval: Sequelize.STRING,
+    kodeBuku: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+      allowNull: false,
+    },
+    judul: DataTypes.STRING,
+    penulis: DataTypes.STRING,
+    ringkasan: DataTypes.STRING,
+    tahunTerbit: DataTypes.YEAR,
+    keterangan: DataTypes.STRING,
+    jumlah: DataTypes.INTEGER,
+    tersedia: DataTypes.INTEGER,
+    cover: DataTypes.STRING,
+    berkasBuku: DataTypes.STRING,
+    createdAt: DataTypes.DATE,
+    likes: DataTypes.INTEGER,
+    isApproval: DataTypes.ENUM('Disetujui', 'Belum Disetujui', 'Ditolak'),
+    kategori_idKategori: DataTypes.INTEGER,
   },
   {
     freezeTableName: true,
@@ -24,6 +29,6 @@ const books = db.define(
   },
 )
 
-books.removeAttribute('id')
+buku.removeAttribute("id");
 
-module.exports = books
+module.exports = buku;

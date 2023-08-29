@@ -3,13 +3,19 @@ const db = require('../database/db')
 const siswa = require('./siswaModel.js')
 
 const kotaksaran = db.define(
-  'kotaksaran',
+  'pengadaanbuku',
   {
-    idSaran: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    NIS: { type: Sequelize.INTEGER, allowNull: false }, // Set NIS to auto-generate and not nullable
-    pemberiSaran: { type: Sequelize.STRING, allowNull: false }, // Set pemberiSaran to not nullable
-    saranJudulBuku: { type: Sequelize.STRING, allowNull: false }, // Set saranJudulBuku to not nullable
-    saranPengarangBuku: { type: Sequelize.STRING, allowNull: false }, // Set saranPengarangBuku to not nullable
+    idPengadaan: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    judulBuku: { type: Sequelize.STRING, allowNull: false },
+    pengarang: { type: Sequelize.STRING, allowNull: false },
+    siswa_NIS: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      reference: {
+        model: siswa,
+        key: 'NIS',
+      }
+    },
   },
   {
     freezeTableName: true,
@@ -17,13 +23,13 @@ const kotaksaran = db.define(
   },
 )
 
-kotaksaran.hasMany(siswa, {
-  foreignKey: 'NIS',
+kotaksaran.belongsTo(siswa, {
+  foreignKey: 'siswa_NIS',
   as: 'siswa',
 })
-siswa.belongsTo(kotaksaran, {
-  foreignKey: 'NIS',
-  as: 'kotaksaran',
-})
+// siswa.belongsTo(kotaksaran, {
+//   foreignKey: 'NIS',
+//   as: 'kotaksaran',
+// })
 
 module.exports = kotaksaran

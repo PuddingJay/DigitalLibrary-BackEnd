@@ -8,26 +8,11 @@ const controller = {}
 
 controller.getAll = async function (req, res) {
   try {
-    let books = await models.books.findAll({
-      attributes: [
-        'kodeBuku',
-        'judul',
-        'penulis',
-        'Kategori',
-        'ringkasan',
-        'tahun_terbit',
-        'keterangan',
-        'jumlah',
-        'tersedia',
-        'cover_buku',
-        'file_ebook',
-        'isApproval',
-      ],
-    })
-    if (books.length > 0) {
+    let buku = await models.buku.findAll()
+    if (buku.length > 0) {
       res.status(200).json({
         message: 'Data semua Buku',
-        data: books,
+        data: buku,
       })
     } else {
       res.status(202).json({
@@ -407,76 +392,6 @@ controller.delete = async function (req, res) {
     console.log(error)
     return res.status(500).json({
       message: 'Terjadi kesalahan server',
-    })
-  }
-}
-
-controller.getSearch = async function (req, res) {
-  const { search } = req.params
-  try {
-    let books = await models.books.findAll({
-      attributes: [
-        'kodeBuku',
-        'judul',
-        'penulis',
-        'Kategori',
-        'tahun_terbit',
-        'keterangan',
-        'jumlah',
-        'cover_buku',
-        'file_ebook',
-      ],
-      where: {
-        [Op.or]: [
-          {
-            kodeBuku: {
-              [Op.like]: '%' + search + '%',
-            },
-          },
-          {
-            judul: {
-              [Op.like]: `%${search}%`,
-            },
-          },
-          {
-            penulis: {
-              [Op.like]: `%${search}%`,
-            },
-          },
-          {
-            Kategori: {
-              [Op.like]: `%${search}%`,
-            },
-          },
-          {
-            tahun_terbit: {
-              [Op.like]: `%${search}%`,
-            },
-          },
-          {
-            keterangan: {
-              [Op.like]: `%${search}%`,
-            },
-          },
-        ],
-      },
-      raw: true,
-    })
-    if (books.length > 0) {
-      res.status(200).json({
-        message: 'Data semua Buku',
-        data: books,
-      })
-    } else {
-      res.status(202).json({
-        message: 'Tidak ada data',
-        data: [],
-      })
-    }
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      message: 'Terjadi kesalahan saat mengambil data',
     })
   }
 }

@@ -8,31 +8,27 @@ const controller = {};
 
 controller.getAll = async function (req, res) {
   try {
-    let peminjaman = await db.query(
-      `SELECT 
-      DISTINCT peminjaman.idPeminjaman, 
-      peminjaman.kodeBuku as kodeBuku, 
-      siswa.NIS, 
-      peminjaman.namaPeminjam, 
-      books.judul as judulBuku, 
-      peminjaman.tglPinjam, 
-      peminjaman.batasPinjam, 
-      peminjaman.tglKembali, 
-      peminjaman.denda, 
-      peminjaman.status as status,
-      peminjaman.createdAt
-    FROM 
-      peminjaman 
-      JOIN books ON peminjaman.kodeBuku = books.kodeBuku 
-      JOIN siswa ON peminjaman.NIS = siswa.NIS;`
-    );
+
+    let peminjaman = await models.meminjam.findAll({
+      include: [
+        {
+          model: models.buku,
+          attributes: ['kodeBuku', 'judul'],
+          as: 'buku'
+        },
+        {
+          model: models.siswa,
+          attributes: ['NIS', 'kelas', 'jurusan'],
+          as: 'siswa'
+        },
+      ]
+    })
 
     if (peminjaman.length > 0) {
-      const uniquePeminjaman = Array.from(new Set(peminjaman.map(JSON.stringify))).map(JSON.parse);
       res.status(200).json({
-        message: 'Get Method Peminjaman',
-        data: uniquePeminjaman.flat(),
-      });
+        message: 'Semua Data Peminjaman',
+        data: peminjaman,
+      })
     } else {
       res.status(200).json({
         message: "Tidak Ada Data",
@@ -40,12 +36,12 @@ controller.getAll = async function (req, res) {
       });
     }
   } catch (err) {
+    console.error(err)
     res.status(400).json({
       message: err.message,
     });
   }
 };
-
 controller.getOnSiswa = async function (req, res) {
   try {
     const { NIS } = req.params; // Assuming the NIS is provided as a parameter

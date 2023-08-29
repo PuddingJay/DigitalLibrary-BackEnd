@@ -8,13 +8,21 @@ const siswaController = {}
 
 siswaController.getAll = async function (req, res) {
   try {
-    let siswa = await models.siswa.findAll({
-      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan', 'jumlahPinjam', 'waktuPinjam'],
-    })
-    if (siswa.length > 0) {
+    const siswa = await models.akun.findAll({
+      include: [{ model: models.siswa, as: 'siswa' }],
+    });
+
+    const flattenedSiswaData = siswa.map(item => {
+      const { nama } = item.dataValues;
+      const siswaData = item.siswa.dataValues;
+      return { nama, ...siswaData };
+    });
+
+    console.log("Siswa data fetched:", siswa);
+    if (flattenedSiswaData.length > 0) {
       res.status(200).json({
         message: 'Data semua Siswa',
-        data: siswa,
+        data: flattenedSiswaData,
       })
     } else {
       res.status(202).json({

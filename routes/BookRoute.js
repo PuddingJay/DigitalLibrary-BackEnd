@@ -58,7 +58,7 @@ const uploadPdf = multer({ storage: storagePdf })
 router.get('/book/:kodeBuku', controller.booksController.getOne)
 router.get('/book/pdf/:kodeBuku', controller.booksController.getPdf)
 router.get('/book/', controller.booksController.getAll)
-router.get('/book/search/:keyword', controller.booksController.getSearch)
+// router.get('/book/search/:keyword', controller.booksController.getSearch)
 router.get('/ApprovedBook/', controller.booksController.getDisetujui)
 router.get('/topBooks/', controller.booksController.getLikes)
 router.post(
