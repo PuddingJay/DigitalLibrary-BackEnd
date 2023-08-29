@@ -18,7 +18,7 @@ controller.getAll = async function (req, res) {
         },
         {
           model: models.siswa,
-          attributes: ['NIS', 'kelas', 'jurusan'],
+          attributes: ['NIS'],
           as: 'siswa'
         },
       ]

@@ -12,7 +12,7 @@ const buku = db.define(
     judul: DataTypes.STRING,
     penulis: DataTypes.STRING,
     ringkasan: DataTypes.STRING,
-    tahunTerbit: DataTypes.YEAR,
+    tahunTerbit: DataTypes.DATE,
     keterangan: DataTypes.STRING,
     jumlah: DataTypes.INTEGER,
     tersedia: DataTypes.INTEGER,

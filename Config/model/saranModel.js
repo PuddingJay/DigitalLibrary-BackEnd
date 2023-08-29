@@ -1,13 +1,13 @@
-const Sequelize = require('sequelize')
+const { DataTypes } = require('sequelize')
 const db = require('../database/db')
 const siswa = require('./siswaModel.js')
 
 const kotaksaran = db.define(
   'pengadaanbuku',
   {
-    idPengadaan: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    judulBuku: { type: Sequelize.STRING, allowNull: false },
-    pengarang: { type: Sequelize.STRING, allowNull: false },
+    idPengadaan: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    judulBuku: { type: DataTypes.STRING, allowNull: false },
+    pengarang: { type: DataTypes.STRING, allowNull: false },
     siswa_NIS: {
       type: DataTypes.INTEGER,
       allowNull: false,

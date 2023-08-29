@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const db = require("../database/db.js")
+const buku = require('./booksModel.js')
+const siswa = require('./siswaModel.js')
 
 const bookingPinjam = db.define(
   "reservasipinjam",

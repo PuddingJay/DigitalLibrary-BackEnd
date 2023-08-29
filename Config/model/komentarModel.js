@@ -37,7 +37,7 @@ komentar.belongsTo(buku, {
   foreignKey: 'kodeBuku',
   as: 'komentar',
 })
-books.hasMany(komentar, {
+buku.hasMany(komentar, {
   foreignKey: 'kodeBuku',
   as: 'books',
 })
