@@ -6,27 +6,63 @@ const db = require('../Config/database/db.js')
 
 controller.getAll = async function (req, res) {
   try {
-    let bookingPinjam = await db.query(
-      `SELECT 
-      DISTINCT bookingpinjam.idBookingPinjam, 
-      siswa.NIS, 
-      siswa.Nama, 
-      books.kodeBuku, 
-      books.judul, 
-      bookingpinjam.waktuBooking, 
-      bookingpinjam.batasBooking, 
-      bookingpinjam.createdAt 
-    FROM 
-      bookingpinjam 
-      JOIN siswa ON bookingpinjam.NIS = siswa.NIS 
-      JOIN books ON bookingpinjam.kodeBuku = books.kodeBuku`,
+    let bookingPinjam = await models.bookingPinjam.findAll(
+      {
+        include: [
+          {
+            model: models.buku,
+            attributes: ['kodeBuku', 'judul'],
+            as: 'buku'
+          },
+          {
+            model: models.siswa,
+            attributes: ['NIS'],
+            as: 'siswa',
+            include: [
+              {
+                model: models.akun,
+                attributes: ['nama'],
+                as: 'akun'
+              }
+            ]
+          },
+        ]
+      }
     )
 
-    if (bookingPinjam.length > 0) {
-      const uniquebookingPinjam = Array.from(new Set(bookingPinjam.map(JSON.stringify))).map(JSON.parse)
+    const transformedData = bookingPinjam.map(item => ({
+      Buku_kodeBuku: item.Buku_kodeBuku,
+      Siswa_NIS: item.Siswa_NIS,
+      idReservasi: item.idReservasi,
+      tglPemesanan: item.tglPemesanan,
+      status: item.status,
+      createdAt: item.createdAt,
+      judul: item.buku.judul,
+      nama: item.siswa.akun.nama
+    }));
+
+    // db.query(
+    //   `SELECT 
+    //   DISTINCT bookingpinjam.idBookingPinjam, 
+    //   siswa.NIS, 
+    //   siswa.Nama, 
+    //   books.kodeBuku, 
+    //   books.judul, 
+    //   bookingpinjam.waktuBooking, 
+    //   bookingpinjam.batasBooking, 
+    //   bookingpinjam.createdAt 
+    // FROM 
+    //   bookingpinjam 
+    //   JOIN siswa ON bookingpinjam.NIS = siswa.NIS 
+    //   JOIN books ON bookingpinjam.kodeBuku = books.kodeBuku`,
+    // )
+
+    if (transformedData.length > 0) {
+      // const uniquebookingPinjam = Array.from(new Set(bookingPinjam.map(JSON.stringify))).map(JSON.parse)
       res.status(200).json({
         message: 'Data semua booking pinjam',
-        data: uniquebookingPinjam.flat(),
+        data: transformedData,
+        // uniquebookingPinjam.flat(),
       })
     } else {
       res.status(200).json({
@@ -70,12 +106,12 @@ controller.getOne = async function (req, res) {
 controller.post = async function (req, res) {
   try {
     console.log(req.body)
-    const { NIS, nama, kodeBuku, judulBuku, waktuBooking } = req.body
+    const { Siswa_NIS, Buku_kodeBuku, tglPemesanan, status } = req.body
 
     const existingBooking = await models.bookingPinjam.findOne({
       where: {
-        NIS,
-        kodeBuku,
+        Siswa_NIS,
+        Buku_kodeBuku,
       },
     })
 
@@ -86,11 +122,10 @@ controller.post = async function (req, res) {
     }
 
     let bookingPinjam = await models.bookingPinjam.create({
-      NIS,
-      nama,
-      kodeBuku,
-      judulBuku,
-      waktuBooking,
+      Siswa_NIS,
+      Buku_kodeBuku,
+      tglPemesanan,
+      status: !status ? "Belum Dipinjam" : status,
       createdAt: new Date,
     })
 
@@ -110,7 +145,7 @@ controller.delete = async function (req, res) {
   try {
     const bookingPinjam = await models.bookingPinjam.findOne({
       where: {
-        idBookingPinjam: req.params.idBookingPinjam,
+        idReservasi: req.params.idReservasi,
       },
     })
 
@@ -122,17 +157,43 @@ controller.delete = async function (req, res) {
 
     await models.bookingPinjam.destroy({
       where: {
-        idBookingPinjam: req.params.idBookingPinjam,
+        idReservasi: req.params.idReservasi,
       },
     })
 
     res.status(200).json({
-      message: 'Berhasil Hapus Data Peminjaman',
+      message: 'Berhasil Hapus Data Pemesanan',
     })
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       message: error.message,
     })
+  }
+}
+
+controller.put = async function (req, res) {
+  let updatedValues = {
+    Buku_kodeBuku: req.body.Buku_kodeBuku,
+    Siswa_NIS: req.body.Siswa_NIS,
+    idReservasi: req.body.idReservasi,
+    judul: req.body.judul,
+    nama: req.body.nama,
+    status: req.body.status,
+    tglPemesanan: req.body.tglPemesanan,
+  };
+
+  try {
+    await models.bookingPinjam.update(updatedValues, {
+      where: {
+        idReservasi: req.params.idReservasi,
+      },
+    });
+
+    res.status(200).json({ message: 'Items updated successfully', updatedItem: updatedValues });
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ message: err })
   }
 }
 

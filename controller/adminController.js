@@ -6,24 +6,35 @@ const controller = {}
 
 controller.getAdmin = async (req, res) => {
   try {
-    const admins = await models.admin.findAll({
-      attributes: ['id', 'name', 'username'],
-    })
-    res.json(admins)
+    // await models.akun.destroy({
+    //   where: { idAkun: 9 }
+    // })
+
+    const admins = await models.akun.findAll(
+      {
+        attributes: ['nama', 'username', 'role'],
+        where: { role: ['admin', 'superadmin'] }
+      })
+
+    if (admins.length > 0) {
+      res.status(200).json({ message: 'Data admin', data: admins })
+    } else {
+      res.status(404).json({ message: 'Tidak ada data' })
+    }
   } catch (err) {
     console.log(err)
   }
 }
 
 controller.register = async (req, res) => {
-  const { name, username, password, confPassword, role } = req.body
+  const { nama, username, password, confPassword, role } = req.body
   if (password !== confPassword)
     return res.status(400).json({
       message: 'Password tidak sama',
     })
 
   try {
-    const existingAdmin = await models.admin.findOne({
+    const existingAdmin = await models.akun.findOne({
       where: {
         username: username,
       },
@@ -37,10 +48,10 @@ controller.register = async (req, res) => {
 
     const salt = await bcrypt.genSalt()
     const hashPassword = await bcrypt.hash(password, salt)
-    await models.admin.create({
-      name: name,
+    await models.akun.create({
+      nama: nama,
       username: username,
-      role: role,
+      role: role || 'admin',
       password: hashPassword,
     })
     res.json({
@@ -53,7 +64,7 @@ controller.register = async (req, res) => {
 
 controller.login = async (req, res) => {
   try {
-    const admin = await models.admin.findAll({
+    const admin = await models.akun.findAll({
       where: {
         username: req.body.username,
       },
@@ -62,30 +73,29 @@ controller.login = async (req, res) => {
     const match = await bcrypt.compare(req.body.password, admin[0].password)
     if (!match) return res.status(400).json({ message: 'Wrong Password' })
 
-    const adminId = admin[0].id
-    const name = admin[0].name
+    const name = admin[0].nama
     const username = admin[0].username
     const role = admin[0].role
     const accessToken = jwt.sign(
-      { adminId, name, username, role },
+      { name, username, role },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: '20s',
       },
     )
     const refreshToken = jwt.sign(
-      { adminId, name, username, role },
+      { name, username, role },
       process.env.REFRESH_TOKEN_SECRET,
       {
         expiresIn: '1d',
       },
     )
 
-    await models.admin.update(
+    await models.akun.update(
       { refreshToken: refreshToken },
       {
         where: {
-          id: adminId,
+          idAkun: admin[0].idAkun,
         },
       },
     )
@@ -99,6 +109,7 @@ controller.login = async (req, res) => {
     res.json({ accessToken, refreshToken })
     console.log(refreshToken)
   } catch (err) {
+    console.log(err)
     res.status(404).json({ message: 'Username tidak ditemukan' })
   }
 }
@@ -114,9 +125,9 @@ controller.updateAdmin = async (req, res) => {
     }
 
     // Find the existing admin by ID
-    const admin = await models.admin.findOne({
+    const admin = await models.akun.findOne({
       where: {
-        id: adminId,
+        idAkun: adminId,
       },
     })
 
@@ -148,9 +159,9 @@ controller.updateAdmin = async (req, res) => {
     }
 
     // Update the admin data
-    await models.admin.update(
+    await models.akun.update(
       {
-        name: name || admin.name,
+        nama: name || admin.nama,
         username: username || admin.username,
         password: newPassword
           ? await bcrypt.hash(newPassword, await bcrypt.genSalt())
@@ -158,7 +169,7 @@ controller.updateAdmin = async (req, res) => {
       },
       {
         where: {
-          id: adminId,
+          idAkun: adminId,
         },
       },
     )
@@ -177,7 +188,7 @@ controller.logout = async (req, res) => {
       return res.sendStatus(204)
     }
 
-    const admin = await models.admin.findOne({
+    const admin = await models.akun.findOne({
       where: {
         refreshToken: refreshToken,
       },
@@ -187,19 +198,19 @@ controller.logout = async (req, res) => {
       return res.sendStatus(204)
     }
 
-    const adminId = admin.id
+    const adminId = admin.idAkun
 
-    await models.admin.update(
+    await models.akun.update(
       { refreshToken: null },
       {
         where: {
-          id: adminId,
+          idAkun: adminId,
         },
       },
     )
 
     // res.clearCookie('refreshToken');
-    return res.json({ message: 'Data dihapus' })
+    return res.json({ message: 'Logout' })
   } catch (err) {
     console.log(err)
     return res.status(500).json({ message: 'Internal Server Error' })

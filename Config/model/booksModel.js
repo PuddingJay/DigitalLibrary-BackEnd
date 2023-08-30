@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const db = require("../database/db.js");
+const kategori = require("./kategoriModel.js");
 
 const buku = db.define(
   "buku",
@@ -12,7 +13,7 @@ const buku = db.define(
     judul: DataTypes.STRING,
     penulis: DataTypes.STRING,
     ringkasan: DataTypes.STRING,
-    tahunTerbit: DataTypes.DATE,
+    tahunTerbit: DataTypes.STRING,
     keterangan: DataTypes.STRING,
     jumlah: DataTypes.INTEGER,
     tersedia: DataTypes.INTEGER,
@@ -28,6 +29,11 @@ const buku = db.define(
     timestamps: false,
   },
 )
+
+buku.belongsTo(kategori, {
+  foreignKey: 'kategori_idKategori',
+  as: 'kategori'
+})
 
 buku.removeAttribute("id");
 

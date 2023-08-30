@@ -1,0 +1,68 @@
+
+###
+GET http://localhost:3005/siswa/
+
+###
+GET http://localhost:3005/siswa/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaXN3YUlkIjoxNTE1MSwibmFtYSI6IlJpemt5IiwidXNlcm5hbWUiOiJSaXpreSIsInJvbGUiOiJzaXN3YSIsImlhdCI6MTY5MzM2NjI2MiwiZXhwIjoxNjkzNDUyNjYyfQ.2MQzkNBqAuA6BgPlUwu7SAJ8iZn_3e44vIyQnwEZ2oU
+
+###
+GET http://localhost:3005/siswatoken/
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaXN3YUlkIjoxMDUyMTkwMzYsIm5hbWEiOiJNdWhhbW1hZCBXaW5kdSBBamkiLCJ1c2VybmFtZSI6Ik11aGFtbWFkIFdpbmR1IEFqaSIsInJvbGUiOiJzaXN3YSIsImlhdCI6MTY5MzMyMTYwOSwiZXhwIjoxNjkzNDA4MDA5fQ.Ribc0_ExeqnnGraLdwbDNZsntd1X-Fm5meJGOdZyehg
+
+###
+POST http://localhost:3005/siswa/login
+Content-Type: application/json
+
+{
+  "nama" : "Rizky",
+  "password" : "15151"
+}
+
+###
+DELETE http://localhost:3005/siswaLogout/refreshToken
+
+###
+PUT http://localhost:3005/siswa-update/105219036
+Content-Type: application/json
+
+{
+  "prevPassword": "1052190036",
+  "newPassword": "105219036",
+  "confirmNewPassword": "105219036"
+}
+
+###
+PUT http://localhost:3005/siswa/105219036
+Content-Type: application/json
+
+{
+  "NIS": 105219036,
+  "nama": "Muhammad Windu Aji"
+}
+
+###
+POST http://localhost:3005/siswa
+Content-Type: application/json
+
+{
+  "NIS" : "105219036",
+  "nama": "Muhammad Windu Aji",
+  "role": "siswa"
+}
+
+###
+DELETE http://localhost:3005/siswa/20
+
+###
+POST http://localhost:3005/siswa-from-excel
+Content-Type: application/json
+
+[
+    {
+    "NIS": "105219098",
+    "nama": "Lord Yusril"
+}, {
+    "NIS": "105219099",
+    "nama": "Lord Albi"
+}
+]

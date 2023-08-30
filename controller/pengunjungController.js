@@ -9,11 +9,13 @@ controller.post = async (req, res) => {
     // const currentTime = new Date();
     // const formattedTime = format(currentTime, "yyyy-MM-dd, HH:mm:ss");
 
-    const { NIS, nama, kelas } = req.body;
+    const { nama, tipePengunjung, asal } = req.body;
 
     const existingRecord = await models.pengunjung.findOne({
       where: {
-        NIS,
+        nama,
+        tipePengunjung,
+        asal,
         waktuKunjung: {
           [Op.gte]: new Date().setHours(0, 0, 0, 0),
           [Op.lt]: new Date().setHours(24, 0, 0, 0),
@@ -28,9 +30,9 @@ controller.post = async (req, res) => {
     }
 
     let pengunjung = await models.pengunjung.create({
-      NIS,
       nama,
-      kelas,
+      tipePengunjung,
+      asal,
       waktuKunjung: new Date(),
     })
     res.status(201).json({

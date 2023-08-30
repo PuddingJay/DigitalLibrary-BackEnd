@@ -65,26 +65,25 @@ router.post(
   '/book/',
   upload.fields([
     {
-      name: 'cover_buku',
+      name: 'cover',
       maxCount: 1,
     },
     {
-      name: 'file_ebook',
+      name: 'berkasBuku',
       maxCount: 1,
     },
   ]),
   controller.booksController.post,
 )
-
 router.put(
   '/book/:kodeBuku',
   upload.fields([
     {
-      name: 'cover_buku',
+      name: 'cover',
       maxCount: 1,
     },
     {
-      name: 'file_ebook',
+      name: 'berkasBuku',
       maxCount: 1,
     },
   ]),
@@ -103,7 +102,7 @@ router.post('/kategori', controller.kategoriController.post)
 router.delete('/kategori/:idKategori', controller.kategoriController.delete)
 
 router.get('/peminjaman/', controller.peminjamanController.getAll)
-router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne)
+router.get('/peminjaman/:NIS', controller.peminjamanController.getOnSiswa)
 router.post('/peminjaman/', controller.peminjamanController.post)
 router.put('/peminjaman/:idPeminjaman', controller.peminjamanController.put)
 router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delete)
@@ -137,7 +136,7 @@ router.post(
   '/history/',
   uploadHistory.fields([
     {
-      name: 'cover_buku',
+      name: 'cover',
       maxCount: 1,
     },
   ]),
@@ -149,7 +148,6 @@ router.get('/siswa/:refreshToken', controller.siswaController.getOne)
 router.get('/siswa/', controller.siswaController.getAll)
 router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
 router.get('/berhasilLogin/:refreshToken', controller.refreshTokenSiswa.refreshToken)
-router.get('/siswa/:search', controller.siswaController.getSearch)
 router.post('/siswa/', controller.siswaController.register)
 router.post(
   '/import-excel',
@@ -157,10 +155,11 @@ router.post(
   controller.siswaController.importExcel,
 )
 router.post('/siswa-from-excel', controller.siswaController.postExcel)
+router.get('/siswa/:refreshToken', controller.siswaController.getOne)
 router.put('/siswa/:NIS', controller.siswaController.put)
 router.put('/siswa-update/:siswaId', controller.siswaController.updatePassword)
 router.put('/siswa-naik-kelas', controller.siswaController.naikKelas)
-router.delete('/siswa/:NIS', controller.siswaController.delete)
+router.delete('/siswa/:id', controller.siswaController.delete)
 router.post('/siswa/login', controller.siswaController.login)
 router.delete('/siswaLogout/:refreshToken', controller.siswaController.logout)
 
@@ -177,6 +176,7 @@ router.delete('/logout/:refreshToken', controller.adminController.logout)
 
 router.get('/booking-pinjam', controller.bookingPinjamController.getAll)
 router.post('/booking-pinjam', controller.bookingPinjamController.post)
-router.delete('/booking-pinjam/:idBookingPinjam', controller.bookingPinjamController.delete)
+router.put('/booking-pinjam/:idReservasi', controller.bookingPinjamController.put)
+router.delete('/booking-pinjam/:idReservasi', controller.bookingPinjamController.delete)
 
 module.exports = router

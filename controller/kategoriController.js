@@ -7,7 +7,7 @@ const db = require('../Config/database/db.js')
 controller.getAll = async function (req, res) {
   try {
     let kategoribuku = await models.kategoribuku.findAll({
-      attributes: ['idKategori', 'Kategori'],
+      attributes: ['idKategori', 'nama'],
     })
     if (kategoribuku.length > 0) {
       res.status(200).json({
@@ -57,10 +57,10 @@ controller.getOne = async function (req, res) {
 controller.post = async function (req, res) {
   try {
     console.log(req.body)
-    const { Kategori } = req.body
+    const { nama } = req.body
 
     let kategoribuku = await models.kategoribuku.create({
-      Kategori,
+      nama,
     })
 
     res.status(201).json({

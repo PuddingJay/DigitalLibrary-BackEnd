@@ -11,9 +11,10 @@ controller.refreshToken = async (req, res) => {
       return res.status(401).json({ message: 'Missing refreshToken' })
     }
 
-    const siswa = await models.siswa.findOne({
+    const siswa = await models.akun.findOne({
       where: {
         refreshToken: refreshToken,
+        role: 'siswa'
       },
     })
 
@@ -27,9 +28,10 @@ controller.refreshToken = async (req, res) => {
         return res.status(403).json({ message: 'Invalid refreshToken!!' })
       }
 
-      const siswaId = siswa.NIS
-      const Nama = siswa.Nama
-      const accessToken = jwt.sign({ siswaId, Nama }, process.env.ACCESS_TOKEN_SECRET, {
+      const siswaId = siswa.siswa_NIS
+      const siswaUsername = siswa.username
+      const nama = siswa.nama
+      const accessToken = jwt.sign({ siswaId, siswaUsername, nama }, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '300s',
       })
 

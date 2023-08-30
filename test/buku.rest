@@ -1,0 +1,22 @@
+###
+GET http://localhost:3005/book
+
+###
+POST http://localhost:3005/book
+Content-Type: application/json
+
+{
+  "kodeBuku": "1.2.2",
+  "judul": "Matematika Kelas 10",
+  "penulis": "Ahmad Shofi",
+  "kategori_idKategori": 4,
+  "ringkasan": null,
+  "tahunTerbit": "2019",
+  "keterangan": "Buku Fisik",
+  "jumlah": "8",
+  "likes": 0,
+  "isApproval": "Disetujui"
+}
+
+###
+DELETE http://localhost:3005/book/1.2.10

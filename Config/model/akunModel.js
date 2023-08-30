@@ -25,10 +25,5 @@ akun.removeAttribute("id");
 // akun.sync()
 // siswa.sync()
 
-akun.belongsTo(siswa, {
-  foreignKey: 'siswa_NIS',
-  targetKey: 'NIS',
-  as: 'siswa',
-});
 
 module.exports = akun;
