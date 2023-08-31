@@ -1,8 +1,9 @@
-const { DataTypes } = require('sequelize');
-const db = require("../database/db.js")
+const { DataTypes } = require('sequelize')
+const db = require('../database/db.js')
 const siswa = require('./siswaModel.js')
 
-const akun = db.define("akun",
+const akun = db.define(
+  'akun',
   {
     idAkun: {
       type: DataTypes.INTEGER,
@@ -18,9 +19,9 @@ const akun = db.define("akun",
   {
     freezeTableName: true,
     timestamps: false,
-  }
+  },
 )
-akun.removeAttribute("id");
+akun.removeAttribute('id')
 
 // akun.sync()
 // siswa.sync()
@@ -29,6 +30,6 @@ akun.belongsTo(siswa, {
   foreignKey: 'siswa_NIS',
   targetKey: 'NIS',
   as: 'siswa',
-});
+})
 
-module.exports = akun;
+module.exports = akun

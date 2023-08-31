@@ -13,7 +13,7 @@ const komentar = db.define(
       reference: {
         model: siswa,
         key: 'NIS',
-      }
+      },
     },
     buku_kodeBuku: {
       type: DataTypes.STRING,
@@ -21,7 +21,7 @@ const komentar = db.define(
       reference: {
         model: buku,
         key: 'kodeBuku',
-      }
+      },
     },
     idKomentar: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     teksKomentar: DataTypes.STRING,
@@ -34,21 +34,13 @@ const komentar = db.define(
 )
 
 komentar.belongsTo(buku, {
-  foreignKey: 'kodeBuku',
-  as: 'komentar',
-})
-buku.hasMany(komentar, {
-  foreignKey: 'kodeBuku',
-  as: 'books',
+  foreignKey: 'buku_kodeBuku',
+  as: 'buku',
 })
 
 komentar.belongsTo(siswa, {
-  foreignKey: 'NIS',
-  as: 'siswa',
-})
-siswa.hasMany(komentar, {
-  foreignKey: 'NIS',
-  as: 'komentar',
+  foreignKey: 'siswa_NIS',
+  as: 'komentarsiswa',
 })
 
 komentar.removeAttribute('id')

@@ -22,4 +22,16 @@ const models = {
   akun: akunModel,
 }
 
+akunModel.belongsTo(siswaModel, {
+  foreignKey: 'siswa_NIS',
+  targetKey: 'NIS',
+  as: 'siswaakun',
+})
+
+siswaModel.hasOne(akunModel, {
+  foreignKey: 'siswa_NIS',
+  sourceKey: 'NIS',
+  as: 'akunsiswa',
+})
+
 module.exports = models

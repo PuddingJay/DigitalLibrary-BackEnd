@@ -10,13 +10,13 @@
 
 const Sequelize = require('sequelize')
 
-const db = new Sequelize("new_digital_library", "root", "12345678", {
-  host: "localhost",
+const db = new Sequelize('new_digital_library', 'root', '', {
+  host: 'localhost',
   port: 3306,
-  dialect: "mysql",
+  dialect: 'mysql',
   dialectModule: require('mysql2'),
   logging: console.log,
   pool: { max: 10, min: 0, idle: 10000 },
-});
+})
 
 module.exports = db

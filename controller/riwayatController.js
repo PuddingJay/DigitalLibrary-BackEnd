@@ -8,39 +8,43 @@ const sequelize = require('sequelize')
 
 controller.getAll = async function (req, res) {
   try {
-    // Create a subquery to get distinct idRiwayat values
-    const subqueryResults = await models.riwayatbaca.findAll({
-      attributes: ['idRiwayat'],
-      group: ['idRiwayat'],
-    })
-
-    // Extract the idRiwayat values from the subquery results
-    const idRiwayatValues = subqueryResults.map((result) => result.idRiwayat)
-
-    // Use the idRiwayat values in the main query
-    let riwayatbaca = await models.riwayatbaca.findAll({
-      where: {
-        idRiwayat: idRiwayatValues,
-      },
+    let riwayat = await models.riwayatbaca.findAll({
       include: [
         {
-          model: models.books,
-          attributes: ['judul', 'cover_buku', 'tersedia'],
-          as: 'books',
+          model: models.buku,
+          attributes: ['kodeBuku', 'judul', 'cover', 'tersedia'],
+          as: 'buku',
         },
         {
           model: models.siswa,
           attributes: ['NIS'],
           as: 'siswa',
+          include: [
+            {
+              model: models.akun,
+              attributes: ['nama'],
+              as: 'akunsiswa',
+            },
+          ],
         },
       ],
-      order: [['idRiwayat', 'DESC']],
     })
 
-    if (riwayatbaca.length > 0) {
+    const transformedData = riwayat.map((item) => ({
+      siswa_NIS: item.siswa_NIS,
+      nama: item.siswa.akunsiswa.nama,
+      idRiwayat: item.idRiwayat,
+      buku_kodeBuku: item.buku_kodeBuku,
+      judul: item.buku.judul,
+      cover: item.buku.cover,
+      tersedia: item.buku.tersedia,
+      createdAt: item.createdAt,
+    }))
+
+    if (transformedData.length > 0) {
       res.status(200).json({
-        message: 'Data riwayatbaca berhasil diambil',
-        data: riwayatbaca,
+        message: 'Semua Data riwayat',
+        data: transformedData,
       })
     } else {
       res.status(200).json({
@@ -49,6 +53,7 @@ controller.getAll = async function (req, res) {
       })
     }
   } catch (err) {
+    console.error(err)
     res.status(400).json({
       message: err.message,
     })
@@ -59,22 +64,45 @@ controller.getOne = async function (req, res) {
   try {
     const riwayatbaca = await models.riwayatbaca.findAll({
       where: {
-        NamaAkun: req.params.NamaAkun,
+        // Menggunakan 'nama' sebagai gantinya
+        siswa_NIS: req.params.siswa_NIS,
       },
       include: [
         {
-          model: models.books,
-          attributes: ['judul', 'cover_buku', 'tersedia'],
-          as: 'books',
+          model: models.buku,
+          attributes: ['kodeBuku', 'judul', 'cover', 'tersedia'],
+          as: 'buku',
+        },
+        {
+          model: models.siswa,
+          attributes: ['NIS'],
+          as: 'siswa',
+          include: [
+            {
+              model: models.akun,
+              attributes: ['nama'],
+              as: 'akunsiswa',
+            },
+          ],
         },
       ],
-      order: [['idRiwayat', 'DESC']],
     })
 
-    if (riwayatbaca.length > 0) {
+    const transformedData = riwayatbaca.map((item) => ({
+      siswa_NIS: item.siswa_NIS,
+      nama: item.siswa.akunsiswa.nama,
+      idRiwayat: item.idRiwayat,
+      buku_kodeBuku: item.buku_kodeBuku,
+      judul: item.buku.judul,
+      cover: item.buku.cover,
+      tersedia: item.buku.tersedia,
+      createdAt: item.createdAt,
+    }))
+
+    if (transformedData.length > 0) {
       res.status(200).json({
-        message: 'Data riwayatbaca berhasil diambil',
-        data: riwayatbaca,
+        message: 'Semua Data riwayat',
+        data: transformedData,
       })
     } else {
       res.status(200).json({
@@ -91,27 +119,26 @@ controller.getOne = async function (req, res) {
 
 controller.post = async function (req, res) {
   try {
-    console.log(req.body)
-    const { NIS, NamaAkun, kodeBukuRiwayat, judulRiwayat, coverRiwayat, tersediaRiwayat } = req.body
+    const { siswa_NIS, buku_kodeBuku } = req.body
 
-    let riwayatbaca = await models.riwayatbaca.create({
-      NIS,
-      NamaAkun,
-      kodeBukuRiwayat,
-      judulRiwayat,
-      coverRiwayat,
-      tersediaRiwayat,
-      TanggalAkses: moment(),
+    // Cek apakah siswa dengan NIS yang diberikan ada dalam database
+
+    // Buat entitas riwayatbaca baru
+    const newRiwayatBaca = await models.riwayatbaca.create({
+      siswa_NIS: siswa_NIS,
+      buku_kodeBuku: buku_kodeBuku,
+      createdAt: new Date(),
+      // createdAt akan diisi otomatis sesuai konfigurasi model
     })
 
     res.status(201).json({
-      message: 'Berhasil Tambah Data Saran',
-      data: riwayatbaca,
+      message: 'Berhasil Tambah Data Riwayat Baca',
+      data: newRiwayatBaca,
     })
   } catch (error) {
     console.error(error)
     res.status(500).json({
-      message: 'Terjadi kesalahan saat menambah data saran',
+      message: 'Terjadi kesalahan saat menambah data riwayat baca',
     })
   }
 }

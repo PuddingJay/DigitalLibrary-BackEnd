@@ -7,14 +7,42 @@ const moment = require('moment')
 
 controller.getAll = async function (req, res) {
   try {
-    let komentar = await db.query(
-      'SELECT DISTINCT komentar.idKomentar, komentar.kodeBuku as kodeBuku,  siswa.NIS, komentar.namaKomentator, books.judul as judulBuku, komentar.judulBuku, FROM komentar JOIN books ON komentar.kodeBuku = books.kodeBuku JOIN siswa ON komentar.NIS = siswa.NIS;',
-    )
+    let komentar = await models.komentar.findAll({
+      include: [
+        {
+          model: models.buku,
+          attributes: ['kodeBuku', 'judul'],
+          as: 'buku',
+        },
+        {
+          model: models.siswa,
+          attributes: ['NIS'],
+          as: 'komentarsiswa',
+          include: [
+            {
+              model: models.akun,
+              attributes: ['nama'],
+              as: 'akunsiswa',
+            },
+          ],
+        },
+      ],
+    })
+    const transformedData = komentar.map((item) => ({
+      Buku_kodeBuku: item.Buku_kodeBuku,
+      Siswa_NIS: item.Siswa_NIS,
+      idKomentar: item.idKomentar,
+      teksKomentar: item.teksKomentar,
 
-    if (komentar.length > 0) {
+      createdAt: item.createdAt,
+      judul: item.buku.judul,
+      nama: item.komentarsiswa.akunsiswa.nama,
+    }))
+
+    if (transformedData.length > 0) {
       res.status(200).json({
-        message: 'Data komentar berhasil diambil',
-        data: komentar,
+        message: 'Semua Data komentar',
+        data: transformedData,
       })
     } else {
       res.status(200).json({
@@ -23,6 +51,7 @@ controller.getAll = async function (req, res) {
       })
     }
   } catch (err) {
+    console.error(err)
     res.status(400).json({
       message: err.message,
     })
@@ -31,16 +60,46 @@ controller.getAll = async function (req, res) {
 
 controller.getOne = async function (req, res) {
   try {
-    let komentar = await models.komentar.findAll({
+    const komentar = await models.komentar.findAll({
       where: {
-        kodeBuku: req.params.kodeBuku,
+        buku_kodeBuku: req.params.buku_kodeBuku,
       },
+      include: [
+        {
+          model: models.buku,
+          attributes: ['kodeBuku', 'judul'],
+          as: 'buku',
+        },
+        {
+          model: models.siswa,
+          attributes: ['NIS'],
+          as: 'komentarsiswa',
+          include: [
+            {
+              model: models.akun,
+              attributes: ['nama'],
+              as: 'akunsiswa',
+            },
+          ],
+        },
+      ],
     })
 
-    if (komentar.length > 0) {
+    const transformedData = komentar.map((item) => ({
+      Buku_kodeBuku: item.Buku_kodeBuku,
+      Siswa_NIS: item.Siswa_NIS,
+      idKomentar: item.idKomentar,
+      teksKomentar: item.teksKomentar,
+
+      createdAt: item.createdAt,
+      judul: item.buku.judul,
+      nama: item.komentarsiswa.akunsiswa.nama,
+    }))
+
+    if (transformedData.length > 0) {
       res.status(200).json({
-        message: 'Data saran Ditemukan',
-        data: komentar,
+        message: 'Semua Data komentar',
+        data: transformedData,
       })
     } else {
       res.status(200).json({
@@ -49,35 +108,57 @@ controller.getOne = async function (req, res) {
       })
     }
   } catch (err) {
+    console.error(err)
     res.status(400).json({
       message: err.message,
     })
   }
 }
 
+// controller.post = async function (req, res) {
+//   try {
+//     console.log(req.body)
+//     const { NIS, namaKomentator, kodeBuku, judulBuku, textKomentar } = req.body
+
+//     let komentar = await models.komentar.create({
+//       NIS,
+//       namaKomentator,
+//       kodeBuku,
+//       judulBuku,
+//       textKomentar,
+//       createdAt: moment(),
+//     })
+
+//     res.status(201).json({
+//       message: 'Berhasil Tambah Data Saran',
+//       data: komentar,
+//     })
+//   } catch (error) {
+//     console.error(error)
+//     res.status(500).json({
+//       message: 'Terjadi kesalahan saat menambah data saran',
+//     })
+//   }
+// }
+
 controller.post = async function (req, res) {
   try {
-    console.log(req.body)
-    const { NIS, namaKomentator, kodeBuku, judulBuku, textKomentar } = req.body
+    const { buku_kodeBuku, siswa_NIS, teksKomentar } = req.body
+    console.log('req body :', req.body)
 
-    let komentar = await models.komentar.create({
-      NIS,
-      namaKomentator,
-      kodeBuku,
-      judulBuku,
-      textKomentar,
-      waktuKomentar: moment(),
+    // Check if the book and student exis
+
+    const komentar = await models.komentar.create({
+      buku_kodeBuku,
+      siswa_NIS,
+      teksKomentar,
+      createdAt: moment(),
     })
 
-    res.status(201).json({
-      message: 'Berhasil Tambah Data Saran',
-      data: komentar,
-    })
+    return res.status(201).json(komentar)
   } catch (error) {
     console.error(error)
-    res.status(500).json({
-      message: 'Terjadi kesalahan saat menambah data saran',
-    })
+    return res.status(500).json({ message: 'Internal server error' })
   }
 }
 
@@ -86,8 +167,8 @@ controller.put = async function (req, res) {
     const idKomentar = req.params.idKomentar
     let komentar = await models.komentar.update(
       {
-        textKomentar: req.body.textKomentar,
-        waktuKomentar: moment(),
+        teksKomentar: req.body.teksKomentar,
+        createdAt: moment(),
       },
       {
         where: {
@@ -107,26 +188,25 @@ controller.put = async function (req, res) {
 
 controller.delete = async function (req, res) {
   try {
-    const idKomentar = req.body.idKomentar
-    const namaKomentator = req.body.namaKomentator
+    const idKomentar = req.params.idKomentar // Ambil id komentar dari URL
+    // Tidak perlu lagi mengambil namaKomentator dari req.body
 
     const komentar = await models.komentar.findOne({
       where: {
         idKomentar: idKomentar,
-        namaKomentator: namaKomentator,
       },
     })
 
     if (!komentar) {
       return res.status(404).json({
-        message: 'Saran tidak ditemukan',
+        message: 'Komentar tidak ditemukan',
       })
     }
 
     await komentar.destroy()
 
     res.status(200).json({
-      message: 'Berhasil Hapus Data komentar',
+      message: 'Berhasil Hapus Data Komentar',
     })
   } catch (error) {
     res.status(500).json({

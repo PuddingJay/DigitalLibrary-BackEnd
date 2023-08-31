@@ -11,8 +11,8 @@ const path = require('path')
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     console.log(file)
-    if (file.fieldname == 'cover_buku') cb(null, './asset/cover') // Menyimpan file di folder
-    if (file.fieldname == 'file_ebook') cb(null, './asset/file_ebook')
+    if (file.fieldname == 'cover') cb(null, './asset/cover') // Menyimpan file di folder
+    if (file.fieldname == 'berkasBuku') cb(null, './asset/file_ebook')
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname) // Mengatur nama file dengan timestamp
@@ -65,11 +65,11 @@ router.post(
   '/book/',
   upload.fields([
     {
-      name: 'cover_buku',
+      name: 'cover',
       maxCount: 1,
     },
     {
-      name: 'file_ebook',
+      name: 'berkasBuku',
       maxCount: 1,
     },
   ]),
@@ -80,11 +80,11 @@ router.put(
   '/book/:kodeBuku',
   upload.fields([
     {
-      name: 'cover_buku',
+      name: 'cover',
       maxCount: 1,
     },
     {
-      name: 'file_ebook',
+      name: 'berkasBuku',
       maxCount: 1,
     },
   ]),
@@ -101,28 +101,30 @@ router.get('/kategori', controller.kategoriController.getAll)
 router.get('/kategori/:idKategori', controller.kategoriController.getOne)
 router.post('/kategori', controller.kategoriController.post)
 router.delete('/kategori/:idKategori', controller.kategoriController.delete)
+router.put('/kategori/:idKategori', controller.kategoriController.put)
 
 router.get('/peminjaman/', controller.peminjamanController.getAll)
 router.get('/peminjaman/:idPeminjaman', controller.peminjamanController.getOne)
 router.post('/peminjaman/', controller.peminjamanController.post)
 router.put('/peminjaman/:idPeminjaman', controller.peminjamanController.put)
 router.delete('/peminjaman/:idPeminjaman', controller.peminjamanController.delete)
+router.get('/peminjaman/:NIS', controller.peminjamanController.getOnSiswa)
 
 router.get('/kotaksaran', controller.saranController.getAll)
-router.get('/kotaksaran/:idSaran', controller.saranController.getOne)
+router.get('/kotaksaran/:idPengadaan', controller.saranController.getOne)
 router.post('/kotaksaran', controller.saranController.post)
 // router.put('/kotaksaran/:idSaran', controller.saranController.put)
-router.delete('/kotaksaran/:idSaran', controller.saranController.delete)
+router.delete('/kotaksaran/:idPengadaan', controller.saranController.delete)
 
 router.get('/komentar', controller.komentarController.getAll)
-router.get('/komentar/:kodeBuku', controller.komentarController.getOne)
+router.get('/komentar/:buku_kodeBuku', controller.komentarController.getOne)
 router.post('/komentar', controller.komentarController.post)
 router.put('/komentar/:idKomentar', controller.komentarController.put)
-router.delete('/komentar/', controller.komentarController.delete)
+router.delete('/komentar/:idKomentar', controller.komentarController.delete)
 
 router.get('/history', controller.riwayatController.getAll)
 router.get('/historyTanggal', controller.riwayatController.getbyTanggal)
-router.get('/history/:NamaAkun', controller.riwayatController.getOne)
+router.get('/history/:siswa_NIS', controller.riwayatController.getOne)
 const history = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './asset/riwayat') // Menyimpan file di folder
@@ -133,23 +135,14 @@ const history = multer.diskStorage({
 })
 
 const uploadHistory = multer({ storage: history })
-router.post(
-  '/history/',
-  uploadHistory.fields([
-    {
-      name: 'cover_buku',
-      maxCount: 1,
-    },
-  ]),
-  controller.riwayatController.post,
-)
+router.post('/history/', controller.riwayatController.post)
 router.delete('/history/:idRiwayat', controller.riwayatController.delete)
 
 router.get('/siswa/:refreshToken', controller.siswaController.getOne)
 router.get('/siswa/', controller.siswaController.getAll)
 router.get('/siswatoken', tokenSiswa, controller.siswaController.getAll)
 router.get('/berhasilLogin/:refreshToken', controller.refreshTokenSiswa.refreshToken)
-router.get('/siswa/:search', controller.siswaController.getSearch)
+// router.get('/siswa/:search', controller.siswaController.getSearch)
 router.post('/siswa/', controller.siswaController.register)
 router.post(
   '/import-excel',

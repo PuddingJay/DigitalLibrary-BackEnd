@@ -1,8 +1,8 @@
-const { DataTypes } = require("sequelize");
-const db = require("../database/db.js")
+const { DataTypes } = require('sequelize')
+const db = require('../database/db.js')
 
 const siswa = db.define(
-  "siswa",
+  'siswa',
   {
     NIS: {
       type: DataTypes.INTEGER,
@@ -10,7 +10,7 @@ const siswa = db.define(
     },
     status: {
       type: DataTypes.ENUM('Aktif', 'NonAktif'),
-      defaultValue: 'Aktif'
+      defaultValue: 'Aktif',
     },
     jumlahPinjam: DataTypes.INTEGER,
     waktuPinjam: DataTypes.DATE,
@@ -21,6 +21,6 @@ const siswa = db.define(
   },
 )
 
-siswa.removeAttribute("id");
+siswa.removeAttribute('id')
 
-module.exports = siswa;
+module.exports = siswa

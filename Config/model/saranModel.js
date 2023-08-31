@@ -14,7 +14,7 @@ const kotaksaran = db.define(
       reference: {
         model: siswa,
         key: 'NIS',
-      }
+      },
     },
   },
   {
@@ -27,9 +27,5 @@ kotaksaran.belongsTo(siswa, {
   foreignKey: 'siswa_NIS',
   as: 'siswa',
 })
-// siswa.belongsTo(kotaksaran, {
-//   foreignKey: 'NIS',
-//   as: 'kotaksaran',
-// })
 
 module.exports = kotaksaran

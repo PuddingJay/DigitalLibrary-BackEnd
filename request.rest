@@ -6,11 +6,11 @@ POST http://localhost:3005/admin
 Content-Type: application/json
 
 {
-  "name" : "MyShopee",
-  "username": "shopee",
+  "name" : "superAdmin",
+  "username": "superAdmin",
   "password": "perpustakaan1945", 
   "confPassword": "perpustakaan1945",
-  "role" : "admin"
+  "role" : "superadmin"
 }
 
 ###
@@ -38,10 +38,11 @@ POST http://localhost:3005/admin
 Content-Type: application/json
 
 {
-  "name" : "Windu",
-  "username": "admin4",
+  "name" : "Muhammad Husni",
+  "username": "admin",
   "password": "perpustakaan1945", 
-  "confPassword": "perpustakaan1945"
+  "confPassword": "perpustakaan1945",
+  "role" : "admin"
 }
 
 ###
@@ -67,10 +68,9 @@ POST http://localhost:3005/siswa
 Content-Type: application/json
 
 {
-  "NIS" : "15151",
-  "Nama": "Rizky",
-  "Kelas": "12",
-  "Jurusan" : "IPA-1"
+  "NIS" : "12345",
+  "nama": "Muhammad",
+  "role": "siswa"
 }
 
 ###
@@ -109,11 +109,37 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:3005/updateTop/30
+PUT http://localhost:3005/updateTop/1.2.1
 Content-Type: application/json
 
-{ 
+{
+    "kodeBuku": "1.2.1",
     "likes" : "1"
+}
+
+###
+PUT http://localhost:3005/updateApprove/1.2.1
+Content-Type: application/json
+
+{
+    "kodeBuku": "1.2.1",
+    "isApproval" : "Disetujui"
+}
+
+###
+GET http://localhost:3005/ApprovedBook/
+
+###
+GET http://localhost:3005/book/
+
+
+###
+PUT http://localhost:3005/updateRejected/1.2.1
+Content-Type: application/json
+
+{
+    "kodeBuku": "1.2.1",
+    "isApproval" : "Ditolak"
 }
 
 
@@ -122,17 +148,20 @@ DELETE http://localhost:3005/peminjaman/35
 
 
 ###
-GET http://localhost:3005/kotaksaran
+GET http://localhost:3005/kotaksaran/
+
+###
+DELETE http://localhost:3005/kotaksaran/1
 
 ###
 POST http://localhost:3005/kotaksaran
 Content-Type: application/json
 
 {
-    "NIS": 105219001,
-    "pemberiSaran" : "Arsyad",
-    "saranJudulBuku" : "Komik lucu bahasa indonesia",
-    "saranPengarangBuku" : "Natashi kisimoto"
+     
+    "judulBuku" : "Narto",
+    "pengarang" : "yondaime hokage",
+    "siswa_NIS": 15151
 }
 
 
@@ -141,11 +170,15 @@ POST http://localhost:3005/kategori
 Content-Type: application/json
 
 {
-   "namaKategori" : "Hiburan"
+  "idKategori" : "3",
+   "nama" : "Bahasa Inggris"
 }
 
 ###
 GET http://localhost:3005/book
+
+###
+GET http://localhost:3005/kategori
 
 ###
 DELETE http://localhost:3005/peminjaman/4
@@ -155,9 +188,39 @@ POST http://localhost:3005/komentar
 Content-Type: application/json
 
 {
-    "NIS": 105219001,
-    "namaKomentator" : "Arsyad",
-    "kodeBuku" : "1.2.4",
-    "judulBuku" : "Bahasa Indonesia",
-    "textKomentar" : "bukunya keren abis"
+    "siswa_NIS": 15151,
+    "buku_kodeBuku" : "1.2.3",
+    "teksKomentar" : "bukunya mantap"
+}
+
+###
+GET http://localhost:3005/komentar/
+
+###
+PUT http://localhost:3005/komentar/2
+Content-Type: application/json
+
+{
+    
+    "teksKomentar" : "buku yg bermanfaat"
+}
+
+###
+DELETE http://localhost:3005/komentar/4
+
+
+###
+GET http://localhost:3005/history/
+
+###
+DELETE http://localhost:3005/history/2
+
+###
+POST http://localhost:3005/history
+Content-Type: application/json
+
+{
+    
+    "siswa_NIS" : 15151,
+    "buku_kodeBuku" : "1.1"
 }

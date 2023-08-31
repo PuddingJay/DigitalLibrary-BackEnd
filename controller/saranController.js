@@ -3,24 +3,85 @@ const models = require('../Config/model/index')
 const controller = {}
 const { Op } = require('sequelize')
 const db = require('../Config/database/db.js')
-
 controller.getAll = async function (req, res) {
   try {
-    let kotaksaran = await db.query(
-      'SELECT DISTINCT kotaksaran.idSaran, siswa.NIS, kotaksaran.pemberiSaran, kotaksaran.saranJudulBuku, kotaksaran.saranPengarangBuku FROM kotaksaran JOIN siswa ON kotaksaran.NIS = siswa.NIS;',
-    )
+    let saran = await models.kotaksaran.findAll({
+      include: [
+        {
+          model: models.siswa, // Ubah dari 'siswaakun' menjadi 'siswa'
+          attributes: ['NIS'],
+          as: 'siswa', // Ubah dari 'siswaakun' menjadi 'siswa'
+          include: [
+            {
+              model: models.akun,
+              attributes: ['nama'],
+              as: 'akunsiswa',
+            },
+          ],
+        },
+      ],
+    })
+    const transformedData = saran.map((item) => ({
+      siswa_NIS: item.siswa_NIS,
+      idPengadaan: item.idPengadaan,
+      judulBuku: item.judulBuku,
 
-    if (kotaksaran.length > 0) {
-      // Menghapus data duplikat berdasarkan idSaran
-      const uniqueSaran = Array.from(new Set(kotaksaran.map(JSON.stringify))).map(JSON.parse)
+      pengarang: item.pengarang,
+      nama: item.siswa.akunsiswa.nama,
+    }))
+
+    if (transformedData.length > 0) {
       res.status(200).json({
-        message: 'Data kotaksaran berhasil diambil',
-        data: uniqueSaran.flat(),
+        message: 'Semua Data saran',
+        data: transformedData,
       })
     } else {
       res.status(200).json({
         message: 'Tidak Ada Data',
         data: [],
+      })
+    }
+  } catch (err) {
+    console.error(err)
+    res.status(400).json({
+      message: err.message,
+    })
+  }
+}
+
+controller.getOne = async function (req, res) {
+  try {
+    let kotaksaran = await models.kotaksaran.findOne({
+      // Menggunakan findOne() karena Anda ingin mengambil satu entitas berdasarkan ID.
+      where: {
+        idPengadaan: req.params.idPengadaan, // Menggunakan idPengadaan yang sesuai dengan parameter yang diberikan.
+      },
+      include: [
+        {
+          model: models.siswa,
+          attributes: ['NIS'],
+          as: 'siswa',
+          include: [
+            {
+              model: models.akun,
+              attributes: ['nama'],
+              as: 'akunsiswa',
+            },
+          ],
+        },
+      ],
+    })
+
+    if (kotaksaran) {
+      // Periksa apakah kotaksaran ditemukan (bukan null).
+      res.status(200).json({
+        message: 'Data saran Ditemukan',
+        data: kotaksaran,
+      })
+    } else {
+      res.status(200).json({
+        message: 'Tidak Ada Data',
+        data: null, // Menggunakan null jika data tidak ditemukan.
       })
     }
   } catch (err) {
@@ -30,53 +91,29 @@ controller.getAll = async function (req, res) {
   }
 }
 
-controller.getOne = async function (req, res) {
-  try {
-    let kotaksaran = await models.kotaksaran.findAll({
-      where: {
-        idSaran: req.params.idSaran,
-      },
-    })
-
-    if (kotaksaran.length > 0) {
-      res.status(200).json({
-        message: 'Data saran Ditemukan',
-        data: kotaksaran,
-      })
-    } else {
-      res.status(200).json({
-        message: 'Tidak Ada Data',
-        data: [],
-      })
-    }
-  } catch (err) {
-    res.status(400).json({
-      message: error.message,
-    })
-  }
-}
-
 controller.post = async function (req, res) {
   try {
-    console.log(req.body)
-    const { NIS, pemberiSaran, saranJudulBuku, saranPengarangBuku } = req.body
+    const { judulBuku, pengarang, siswa_NIS } = req.body
+    console.log('req body :', req.body)
 
-    let kotaksaran = await models.kotaksaran.create({
-      NIS,
-      pemberiSaran,
-      saranJudulBuku,
-      saranPengarangBuku,
+    // Check if the book and student exist
+
+    const existingSiswa = await models.siswa.findOne({ where: { NIS: siswa_NIS } })
+
+    if (!existingSiswa) {
+      return res.status(400).json({ message: ' student not found' })
+    }
+
+    const kotaksaran = await models.kotaksaran.create({
+      judulBuku,
+      pengarang,
+      siswa_NIS,
     })
 
-    res.status(201).json({
-      message: 'Berhasil Tambah Data Saran',
-      data: kotaksaran,
-    })
+    return res.status(201).json(kotaksaran)
   } catch (error) {
     console.error(error)
-    res.status(500).json({
-      message: 'Terjadi kesalahan saat menambah data saran',
-    })
+    return res.status(500).json({ message: 'Internal server error' })
   }
 }
 
@@ -110,7 +147,7 @@ controller.delete = async function (req, res) {
   try {
     const kotaksaran = await models.kotaksaran.findOne({
       where: {
-        idSaran: req.params.idSaran,
+        idPengadaan: req.params.idPengadaan,
       },
     })
 
@@ -122,12 +159,12 @@ controller.delete = async function (req, res) {
 
     await models.kotaksaran.destroy({
       where: {
-        idSaran: req.params.idSaran,
+        idPengadaan: req.params.idPengadaan,
       },
     })
 
     res.status(200).json({
-      message: 'Berhasil Hapus Data Peminjaman',
+      message: 'Berhasil Hapus Data saran',
     })
   } catch (error) {
     res.status(500).json({

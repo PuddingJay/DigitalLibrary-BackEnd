@@ -10,9 +10,10 @@ controller.refreshToken = async (req, res) => {
       return res.status(401).json({ message: 'Missing refreshToken' })
     }
 
-    const admin = await models.admin.findOne({
+    const admin = await models.akun.findOne({
       where: {
         refreshToken: refreshToken,
+        role: ['admin', 'superadmin'],
       },
     })
 
@@ -25,8 +26,8 @@ controller.refreshToken = async (req, res) => {
         return res.status(403).json({ message: 'Invalid refreshToken' })
       }
 
-      const adminId = admin.id
-      const name = admin.name
+      const adminId = admin.idAkun
+      const name = admin.nama
       const username = admin.username
       const role = admin.role
       const accessToken = jwt.sign(

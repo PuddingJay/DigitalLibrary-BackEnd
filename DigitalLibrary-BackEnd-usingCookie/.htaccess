@@ -1,6 +1,0 @@
-<IfModule mod_passenger.c>
-  # Set resource limits
-  PassengerMaxRequestQueueSize 300
-  PassengerMaxRequests 300
-  PassengerMemoryLimit 200M
-</IfModule>

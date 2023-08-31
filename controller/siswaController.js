@@ -10,19 +10,25 @@ siswaController.getAll = async function (req, res) {
   try {
     const siswa = await models.akun.findAll({
       include: [{ model: models.siswa, as: 'siswa' }],
-    });
+      where: { role: 'siswa' },
+    })
 
-    const flattenedSiswaData = siswa.map(item => {
-      const { nama } = item.dataValues;
-      const siswaData = item.siswa.dataValues;
-      return { nama, ...siswaData };
-    });
+    const flattenedData = siswa.map((item) => ({
+      idAkun: item.idAkun,
+      nama: item.nama,
+      username: item.username,
+      role: item.role,
+      siswa_NIS: item.siswa_NIS,
+      status: item.siswa.status,
+      jumlahPinjam: item.siswa.jumlahPinjam,
+      waktuPinjam: item.siswa.waktuPinjam,
+    }))
 
-    console.log("Siswa data fetched:", siswa);
-    if (flattenedSiswaData.length > 0) {
+    console.log('Siswa data fetched:', siswa)
+    if (flattenedData.length > 0) {
       res.status(200).json({
         message: 'Data semua Siswa',
-        data: flattenedSiswaData,
+        data: flattenedData,
       })
     } else {
       res.status(202).json({
@@ -41,8 +47,8 @@ siswaController.getAll = async function (req, res) {
 siswaController.getOne = async function (req, res) {
   try {
     console.log(req.params)
-    let siswa = await models.siswa.findAll({
-      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan', 'jumlahPinjam', 'waktuPinjam'],
+    let siswa = await models.akun.findAll({
+      attributes: ['nama', 'role', 'refreshToken', 'siswa_NIS'],
       where: {
         refreshToken: req.params.refreshToken,
       },
@@ -68,43 +74,73 @@ siswaController.getOne = async function (req, res) {
 }
 
 siswaController.register = async function (req, res) {
-  const { NIS, Nama, Kelas, Jurusan } = req.body
+  const { NIS, nama } = req.body
   try {
-    // Check if NIS already exists
-    const existingSiswa = await models.siswa.findOne({
-      where: {
-        NIS: NIS,
-      },
+    await models.siswa.create({
+      NIS: NIS,
+      jumlahPinjam: 0,
     })
-
-    if (existingSiswa) {
-      return res.status(400).json({
-        message: 'NIS already exists in the table',
-      })
-    }
 
     const salt = await bcrypt.genSalt()
     const hashPassword = await bcrypt.hash(NIS, salt)
-    let siswa = await models.siswa.create({
-      Nama: Nama,
-      NIS: NIS,
+
+    await models.akun.create({
+      nama: nama,
+      username: nama,
       password: hashPassword,
-      Kelas: Kelas,
-      Jurusan: Jurusan,
-      jumlahPinjam: 0,
+      role: 'siswa',
+      siswa_NIS: NIS,
     })
 
     res.status(201).json({
       message: 'Siswa Berhasil Ditambahkan',
     })
   } catch (error) {
-    process.on('uncaughtException', function (err) {
-      console.log(req.body)
-    })
+    console.log(error)
     res.status(404).json({
       message: error,
     })
   }
+  // const { NIS, Nama, Kelas, Jurusan } = req.body
+  // try {
+  //   const existingSiswa = await models.akun.findOne({
+  //     include: {
+  //       model: models.siswa,
+  //       as: 'siswa'
+  //     },
+  //     where: {
+  //       NIS: NIS,
+  //     },
+  //   })
+
+  //   if (existingSiswa) {
+  //     return res.status(400).json({
+  //       message: 'NIS already exists in the table',
+  //     })
+  //   }
+
+  //   const salt = await bcrypt.genSalt()
+  //   const hashPassword = await bcrypt.hash(NIS, salt)
+  //   let siswa = await models.siswa.create({
+  //     Nama: Nama,
+  //     NIS: NIS,
+  //     password: hashPassword,
+  //     Kelas: Kelas,
+  //     Jurusan: Jurusan,
+  //     jumlahPinjam: 0,
+  //   })
+
+  //   res.status(201).json({
+  //     message: 'Siswa Berhasil Ditambahkan',
+  //   })
+  // } catch (error) {
+  //   process.on('uncaughtException', function (err) {
+  //     console.log(req.body)
+  //   })
+  //   res.status(404).json({
+  //     message: error,
+  //   })
+  // }
 }
 
 siswaController.put = async function (req, res) {
@@ -115,22 +151,27 @@ siswaController.put = async function (req, res) {
     await models.siswa.update(
       {
         NIS: newNIS,
-        Nama: req.body.Nama,
-        Kelas: req.body.Kelas,
-        Jurusan: req.body.Jurusan,
       },
       { where: { NIS: currentNIS } },
     )
-
-    await models.peminjaman.update({ namaPeminjam: req.body.Nama }, { where: { NIS: currentNIS } })
-
-    await models.pengunjung.update(
+    await models.akun.update(
       {
-        nama: req.body.Nama,
-        kelas: req.body.Kelas,
+        nama: req.body.nama,
       },
-      { where: { NIS: currentNIS } },
+      {
+        where: { siswa_NIS: currentNIS },
+      },
     )
+
+    // await models.meminjam.update({ namaPeminjam: req.body.Nama }, { where: { NIS: currentNIS } })
+
+    // await models.pengunjung.update(
+    //   {
+    //     nama: req.body.nama,
+    //     kelas: req.body.Kelas,
+    //   },
+    //   { where: { NIS: currentNIS } },
+    // )
 
     res.status(200).json({
       message: 'Berhasil ubah data anggota',
@@ -144,14 +185,23 @@ siswaController.put = async function (req, res) {
 
 siswaController.delete = async function (req, res) {
   try {
-    await models.siswa.destroy({
-      where: {
-        NIS: req.params.NIS,
-      },
+    const akunToDelete = await models.akun.findByPk(req.params.id, {
+      include: [{ model: models.siswa, as: 'siswa' }],
     })
-    res.status(200).json({
-      message: 'Berhasil hapus data buku',
-    })
+
+    if (akunToDelete) {
+      await akunToDelete.destroy()
+
+      await akunToDelete.siswa.destroy()
+
+      res.status(200).json({
+        message: 'Berhasil hapus data buku',
+      })
+    } else {
+      res.status(404).json({
+        message: 'Data Siswa tidak ditemukan',
+      })
+    }
   } catch (error) {
     console.log(error)
     res.status(404).json({
@@ -160,91 +210,42 @@ siswaController.delete = async function (req, res) {
   }
 }
 
-siswaController.getSearch = async function (req, res) {
-  const search = req.query.keyword
-  try {
-    let siswa = await models.siswa.findAll({
-      attributes: ['NIS', 'Nama', 'Kelas', 'Jurusan'],
-      where: {
-        [Op.or]: [
-          {
-            NIS: {
-              [Op.like]: '%' + search + '%',
-            },
-          },
-          {
-            Nama: {
-              [Op.like]: '%' + search + '%',
-            },
-          },
-          {
-            Kelas: {
-              [Op.like]: '%' + search + '%',
-            },
-          },
-          {
-            Jurusan: {
-              [Op.like]: '%' + search + '%',
-            },
-          },
-        ],
-      },
-    })
-    if (siswa.length > 0) {
-      res.status(200).json({
-        message: 'Data semua Buku',
-        data: siswa,
-      })
-    } else {
-      res.status(202).json({
-        message: 'Tidak ada data',
-        data: [],
-      })
-    }
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      message: 'Terjadi kesalahan saat mengambil data',
-    })
-  }
-}
-
 siswaController.login = async (req, res) => {
   try {
-    const siswa = await models.siswa.findAll({
+    const siswa = await models.akun.findAll({
       where: {
-        Nama: req.body.Nama,
+        nama: req.body.nama,
       },
     })
 
     const match = await bcrypt.compare(req.body.password, siswa[0].password)
     if (!match) return res.status(400).json({ message: 'Wrong Password' })
 
-    const siswaId = siswa[0].NIS
-    const Nama = siswa[0].Nama
-    const Kelas = siswa[0].Kelas
-    const Jurusan = siswa[0].Jurusan
+    const siswaId = siswa[0].siswa_NIS
+    const nama = siswa[0].nama
+    const username = siswa[0].username
+    const role = siswa[0].role
 
     const accessToken = jwt.sign(
-      { siswaId, Nama, Kelas, Jurusan },
+      { siswaId, nama, username, role },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: '300s',
       },
     )
     const refreshToken = jwt.sign(
-      { siswaId, Nama, Kelas, Jurusan },
+      { siswaId, nama, username, role },
       process.env.REFRESH_TOKEN_SECRET,
       {
         expiresIn: '1d',
       },
     )
 
-    await models.siswa.update(
+    await models.akun.update(
       { refreshToken: refreshToken },
       {
         where: {
-          NIS: siswaId,
+          siswa_NIS: siswaId,
         },
       },
     )
@@ -270,9 +271,9 @@ siswaController.updatePassword = async (req, res) => {
       return res.status(400).json({ message: 'Invalid siswa ID' })
     }
 
-    const siswa = await models.siswa.findOne({
+    const siswa = await models.akun.findOne({
       where: {
-        NIS: siswaId,
+        siswa_NIS: siswaId,
       },
     })
 
@@ -308,7 +309,7 @@ siswaController.updatePassword = async (req, res) => {
     }
 
     // Update the siswa data
-    await models.siswa.update(
+    await models.akun.update(
       {
         password: newPassword
           ? await bcrypt.hash(newPassword, await bcrypt.genSalt())
@@ -316,7 +317,7 @@ siswaController.updatePassword = async (req, res) => {
       },
       {
         where: {
-          NIS: siswaId,
+          siswa_NIS: siswaId,
         },
       },
     )
@@ -335,23 +336,23 @@ siswaController.logout = async (req, res) => {
       return res.sendStatus(204)
     }
 
-    const siswa = await models.siswa.findOne({
+    const siswa = await models.akun.findOne({
       where: {
         refreshToken: refreshToken,
       },
     })
 
     if (!siswa) {
-      return res.sendStatus(204)
+      return res.status(204).json({ message: 'Akun tidak ditemukan' })
     }
 
-    const siswaId = siswa.NIS
+    const siswaId = siswa.siswa_NIS
 
-    await models.siswa.update(
+    await models.akun.update(
       { refreshToken: null },
       {
         where: {
-          NIS: siswaId,
+          siswa_NIS: siswaId,
         },
       },
     )
@@ -360,7 +361,7 @@ siswaController.logout = async (req, res) => {
     return res.sendStatus(200)
   } catch (err) {
     console.log(err)
-    return res.status(500).json({ message: 'Internal Server Error' })
+    return res.status(500).json({ message: err.message })
   }
 }
 
@@ -385,24 +386,27 @@ siswaController.postExcel = async (req, res) => {
     const saltRounds = 10
 
     for (const studentData of studentsData) {
-      const { NIS, Nama, Kelas, Jurusan } = studentData
+      const { NIS, nama } = studentData
       const hashPassword = await bcrypt.hash(NIS.toString(), saltRounds)
 
       try {
         await models.siswa.create({
-          Nama: Nama,
           NIS: NIS,
-          password: hashPassword,
-          Kelas: Kelas || '',
-          Jurusan: Jurusan || '',
           jumlahPinjam: 0,
         })
+
+        await models.akun.create({
+          nama: nama,
+          username: nama,
+          password: hashPassword,
+          role: 'siswa',
+          siswa_NIS: NIS,
+        })
       } catch (error) {
-        // Handle unique constraint violation error
         if (error.code === 'ER_DUP_ENTRY') {
           res.status(500).json({ message: 'Duplicate entry for NIS:', NIS })
         } else {
-          throw error // Rethrow other errors for standard error handling
+          throw error
         }
       }
     }

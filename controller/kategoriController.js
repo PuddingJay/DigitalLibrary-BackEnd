@@ -7,7 +7,7 @@ const db = require('../Config/database/db.js')
 controller.getAll = async function (req, res) {
   try {
     let kategoribuku = await models.kategoribuku.findAll({
-      attributes: ['idKategori', 'Kategori'],
+      attributes: ['idKategori', 'nama'],
     })
     if (kategoribuku.length > 0) {
       res.status(200).json({
@@ -57,10 +57,12 @@ controller.getOne = async function (req, res) {
 controller.post = async function (req, res) {
   try {
     console.log(req.body)
-    const { Kategori } = req.body
+    const { nama } = req.body
+    const { idKategori } = req.body
 
     let kategoribuku = await models.kategoribuku.create({
-      Kategori,
+      idKategori,
+      nama,
     })
 
     res.status(201).json({
@@ -71,6 +73,29 @@ controller.post = async function (req, res) {
     console.error(error)
     res.status(500).json({
       message: 'Terjadi kesalahan saat menambah data saran',
+    })
+  }
+}
+
+controller.put = async function (req, res) {
+  try {
+    const idKategori = req.params.idKategori
+    let Kategori = await models.kategoribuku.update(
+      {
+        nama: req.body.nama,
+      },
+      {
+        where: {
+          idKategori: idKategori,
+        },
+      },
+    )
+    res.status(200).json({
+      message: 'Berhasil Edit Data Saran',
+    })
+  } catch (error) {
+    res.status(404).json({
+      message: error.message,
     })
   }
 }

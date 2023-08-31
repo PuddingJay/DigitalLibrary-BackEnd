@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 const models = require('../Config/model/index.js')
 const { Op } = require('sequelize')
 const fs = require('fs')
@@ -8,11 +9,49 @@ const controller = {}
 
 controller.getAll = async function (req, res) {
   try {
-    let buku = await models.buku.findAll()
-    if (buku.length > 0) {
+    const books = await models.buku.findAll({
+      include: [{ model: models.kategoribuku, as: 'kategori' }],
+    })
+
+    const flattenedBukuData = books.map((item) => {
+      const {
+        kodeBuku,
+        judul,
+        penulis,
+        ringkasan,
+        tahunTerbit,
+        keterangan,
+        jumlah,
+        tersedia,
+        cover,
+        berkasBuku,
+        createdAt,
+        likes,
+        isApproval,
+      } = item.dataValues
+      const { nama } = item.kategori.dataValues
+      return {
+        kodeBuku,
+        judul,
+        penulis,
+        ringkasan,
+        tahunTerbit,
+        keterangan,
+        jumlah,
+        tersedia,
+        cover,
+        berkasBuku,
+        createdAt,
+        likes,
+        isApproval,
+        kategori: nama,
+      }
+    })
+
+    if (flattenedBukuData.length > 0) {
       res.status(200).json({
         message: 'Data semua Buku',
-        data: buku,
+        data: flattenedBukuData,
       })
     } else {
       res.status(202).json({
@@ -31,7 +70,7 @@ controller.getAll = async function (req, res) {
 controller.getOne = async function (req, res) {
   try {
     console.log(req.params)
-    let books = await models.books.findAll({
+    let buku = await models.buku.findAll({
       where: {
         [Op.or]: [
           {
@@ -40,10 +79,10 @@ controller.getOne = async function (req, res) {
         ],
       },
     })
-    if (books.length > 0) {
+    if (buku.length > 0) {
       res.status(200).json({
         message: 'Data buku ditemukan',
-        data: books,
+        data: buku,
       })
     } else {
       res.status(200).json({
@@ -61,16 +100,16 @@ controller.getOne = async function (req, res) {
 
 controller.getDisetujui = async function (req, res) {
   try {
-    const books = await models.books.findAll({
+    const buku = await models.buku.findAll({
       where: {
         isApproval: 'Disetujui', // Filter by isApproval field
       },
     })
 
-    if (books.length > 0) {
+    if (buku.length > 0) {
       res.status(200).json({
         message: 'Data buku dengan isApproval = Disetujui ditemukan',
-        data: books,
+        data: buku,
       })
     } else {
       res.status(200).json({
@@ -88,15 +127,15 @@ controller.getDisetujui = async function (req, res) {
 
 controller.getLikes = async function (req, res) {
   try {
-    // Fetch books from the database and sort by 'likes' in descending order
-    const books = await models.books.findAll({
+    // Fetch buku from the database and sort by 'likes' in descending order
+    const buku = await models.buku.findAll({
       order: [['likes', 'DESC']],
       limit: 7,
     })
 
-    res.status(200).json({ data: books })
+    res.status(200).json({ data: buku })
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch books' })
+    res.status(500).json({ error: 'Failed to fetch buku' })
   }
 }
 
@@ -105,27 +144,35 @@ controller.post = async function (req, res) {
     console.log(req.body)
     console.log(req.files)
     let coverPath = undefined
-    if (req.files.cover_buku && req.files.cover_buku[0]) {
-      coverPath = req.files.cover_buku[0].path
+    if (req.files.cover && req.files.cover[0]) {
+      coverPath = req.files.cover[0].path
     }
 
     let ebookPath = undefined
-    if (req.files.file_ebook && req.files.file_ebook[0]) {
-      ebookPath = req.files.file_ebook[0].path
+    if (req.files.berkasBuku && req.files.berkasBuku[0]) {
+      ebookPath = req.files.berkasBuku[0].path
     }
 
-    let book = await models.books.create({
+    const selectedCategory = await models.kategoribuku.findByPk(req.body.kategori_idKategori)
+
+    if (!selectedCategory) {
+      return res.status(404).json({
+        message: 'Kategori tidak ditemukan',
+      })
+    }
+
+    let book = await models.buku.create({
       kodeBuku: req.body.kodeBuku,
       judul: req.body.judul,
       penulis: req.body.penulis,
-      Kategori: req.body.Kategori,
+      kategori_idKategori: req.body.kategori_idKategori,
       ringkasan: req.body.ringkasan,
-      tahun_terbit: req.body.tahun_terbit,
+      tahunTerbit: req.body.tahunTerbit,
       keterangan: req.body.keterangan,
       jumlah: req.body.jumlah,
       tersedia: req.body.jumlah,
-      cover_buku: coverPath,
-      file_ebook: ebookPath,
+      cover: coverPath,
+      berkasBuku: ebookPath,
       isApproval: req.body.isApproval,
       createdAt: new Date(),
     })
@@ -133,7 +180,10 @@ controller.post = async function (req, res) {
     console.log(book)
     res.status(201).json({
       message: 'Buku berhasil ditambahkan',
-      data: book,
+      data: {
+        ...book.toJSON(),
+        kategori: selectedCategory.nama, // Masukkan nama kategori ke dalam data response
+      },
     })
   } catch (error) {
     console.log(error)
@@ -143,13 +193,12 @@ controller.post = async function (req, res) {
   }
 }
 
-
 controller.checkKodeBuku = async function (req, res) {
   try {
     const { kodeBuku } = req.params
 
     // Check if kodeBuku already exists in the database
-    const existingBook = await models.books.findOne({
+    const existingBook = await models.buku.findOne({
       where: {
         kodeBuku: kodeBuku,
       },
@@ -186,7 +235,7 @@ controller.put = async function (req, res) {
     // Tampilkan hasil stringifikasi JSON
     console.log('hasil stringify', kodeBukuJSON)
 
-    const book = await models.books.findOne({
+    const book = await models.buku.findOne({
       where: {
         kodeBuku: req.params.kodeBuku,
       },
@@ -207,47 +256,46 @@ controller.put = async function (req, res) {
     // Calculate the new value for tersedia
     const newTersedia = parseInt(book.tersedia) + jumlahDiff
 
-
     let updateFields = {
       judul: req.body.judul,
       penulis: req.body.penulis,
-      Kategori: req.body.Kategori,
+      kategori_idKategori: req.body.kategori_idKategori,
       ringkasan: req.body.ringkasan,
-      tahun_terbit: req.body.tahun_terbit,
+      tahunTerbit: req.body.tahunTerbit,
       keterangan: req.body.keterangan,
       jumlah: req.body.jumlah,
       tersedia: newTersedia,
       isApproval: req.body.isApproval,
     }
 
-    if (!req.files.cover_buku && !req.files.file_ebook) {
-      // Update only non-file fields when both cover_buku and file_ebook are null
-      await models.books.update(updateFields, {
+    if (!req.files.cover && !req.files.berkasBuku) {
+      // Update only non-file fields when both cover and berkasBuku are null
+      await models.buku.update(updateFields, {
         where: {
           kodeBuku: req.params.kodeBuku,
         },
       })
-    } else if (!req.files.cover_buku) {
-      // Update fields excluding cover_buku when cover_buku is null
-      updateFields.file_ebook = req.files.file_ebook[0].path
-      await models.books.update(updateFields, {
+    } else if (!req.files.cover) {
+      // Update fields excluding cover when cover is null
+      updateFields.berkasBuku = req.files.berkasBuku[0].path
+      await models.buku.update(updateFields, {
         where: {
           kodeBuku: req.body.kodeBuku,
         },
       })
-    } else if (!req.files.file_ebook) {
-      // Update fields excluding file_ebook when file_ebook is null
-      updateFields.cover_buku = req.files.cover_buku[0].path
-      await models.books.update(updateFields, {
+    } else if (!req.files.berkasBuku) {
+      // Update fields excluding berkasBuku when berkasBuku is null
+      updateFields.cover = req.files.cover[0].path
+      await models.buku.update(updateFields, {
         where: {
           kodeBuku: req.params.kodeBuku,
         },
       })
     } else {
-      // Update all fields when both cover_buku and file_ebook are not null
-      updateFields.cover_buku = req.files.cover_buku[0].path
-      updateFields.file_ebook = req.files.file_ebook[0].path
-      await models.books.update(updateFields, {
+      // Update all fields when both cover and berkasBuku are not null
+      updateFields.cover = req.files.cover[0].path
+      updateFields.berkasBuku = req.files.berkasBuku[0].path
+      await models.buku.update(updateFields, {
         where: {
           kodeBuku: req.params.kodeBuku,
         },
@@ -268,7 +316,7 @@ controller.putApprove = async function (req, res) {
   console.log('Received request with kodeBuku:', req.params.kodeBuku)
   console.log('Received request with isApproval:', req.body.isApproval)
   try {
-    const query = await models.books.update(
+    const query = await models.buku.update(
       {
         isApproval: req.body.isApproval,
       },
@@ -294,7 +342,7 @@ controller.putRejected = async function (req, res) {
   console.log('Received request with kodeBuku:', req.params.kodeBuku)
   console.log('Received request with isApproval:', req.body.isApproval)
   try {
-    const query = await models.books.update(
+    const query = await models.buku.update(
       {
         isApproval: req.body.isApproval,
       },
@@ -320,7 +368,7 @@ controller.putRejected = async function (req, res) {
 controller.putLike = async function (req, res) {
   console.log('hello')
   try {
-    const book = await models.books.findOne({
+    const book = await models.buku.findOne({
       where: {
         kodeBuku: req.body.kodeBuku,
       },
@@ -333,7 +381,7 @@ controller.putLike = async function (req, res) {
       })
     }
 
-    await models.books.update(
+    await models.buku.update(
       {
         likes: req.body.likes,
       },
@@ -357,7 +405,7 @@ controller.putLike = async function (req, res) {
 
 controller.delete = async function (req, res) {
   try {
-    const book = await models.books.findOne({
+    const book = await models.buku.findOne({
       where: {
         kodeBuku: req.params.kodeBuku,
       },
@@ -369,17 +417,17 @@ controller.delete = async function (req, res) {
       })
     }
 
-    if (book.cover_buku && book.cover_buku.path !== '' && fs.existsSync(book.cover_buku.path)) {
-      fs.unlinkSync(book.cover_buku.path)
+    if (book.cover && book.cover.path !== '' && fs.existsSync(book.cover.path)) {
+      fs.unlinkSync(book.cover.path)
     }
 
     // Hapus file ebook
-    if (book.file_ebook && book.file_ebook.path !== '' && fs.existsSync(book.file_ebook.path)) {
-      fs.unlinkSync(book.file_ebook.path)
+    if (book.berkasBuku && book.berkasBuku.path !== '' && fs.existsSync(book.berkasBuku.path)) {
+      fs.unlinkSync(book.berkasBuku.path)
     }
 
     // Hapus data buku dari database
-    await models.books.destroy({
+    await models.buku.destroy({
       where: {
         kodeBuku: req.params.kodeBuku,
       },
@@ -396,6 +444,76 @@ controller.delete = async function (req, res) {
   }
 }
 
+controller.getSearch = async function (req, res) {
+  const { search } = req.params
+  try {
+    let buku = await models.buku.findAll({
+      attributes: [
+        'kodeBuku',
+        'judul',
+        'penulis',
+        'kategori_idKategori',
+        'tahunTerbit',
+        'keterangan',
+        'jumlah',
+        'cover',
+        'berkasBuku',
+      ],
+      where: {
+        [Op.or]: [
+          {
+            kodeBuku: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+          {
+            judul: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+          {
+            penulis: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+          {
+            kategori_idKategori: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+          {
+            tahunTerbit: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+          {
+            keterangan: {
+              [Op.like]: `%${search}%`,
+            },
+          },
+        ],
+      },
+      raw: true,
+    })
+    if (buku.length > 0) {
+      res.status(200).json({
+        message: 'Data semua Buku',
+        data: buku,
+      })
+    } else {
+      res.status(202).json({
+        message: 'Tidak ada data',
+        data: [],
+      })
+    }
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({
+      message: 'Terjadi kesalahan saat mengambil data',
+    })
+  }
+}
+
 controller.getPdf = async function (req, res) {
   console.log('params', req.params)
   console.log('body', req.body)
@@ -403,14 +521,14 @@ controller.getPdf = async function (req, res) {
     const currentDir = process.cwd() // Get the current working directory
 
     // Find the PDF in the database based on the ID
-    const book = await models.books.findOne({
+    const book = await models.buku.findOne({
       where: {
         kodeBuku: req.params.kodeBuku,
       },
     })
 
     if (book) {
-      const filePath = path.join(currentDir, book.file_ebook)
+      const filePath = path.join(currentDir, book.berkasBuku)
 
       if (fs.existsSync(filePath)) {
         res.sendFile(filePath)
@@ -429,7 +547,7 @@ controller.getPdf = async function (req, res) {
 
 controller.getCategory = async function (req, res) {
   try {
-    let books = await models.books.findAll({
+    let buku = await models.buku.findAll({
       where: {
         [Op.or]: [
           {
@@ -438,11 +556,11 @@ controller.getCategory = async function (req, res) {
         ],
       },
     })
-    // let books = await models.books.findAll({})
-    if (books.length > 0) {
+    // let buku = await models.buku.findAll({})
+    if (buku.length > 0) {
       res.status(200).json({
         message: 'Data buku ditemukan',
-        data: books,
+        data: buku,
       })
     } else {
       res.status(200).json({

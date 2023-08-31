@@ -14,10 +14,4 @@ const kategoribuku = db.define(
   },
 )
 
-// kategoribuku.belongsTo(buku, {
-//   foreignKey: 'kategori_idKategori',
-//   targetKey: 'idKategori',
-//   as: 'kategori'
-// })
-
 module.exports = kategoribuku
