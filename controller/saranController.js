@@ -8,14 +8,14 @@ controller.getAll = async function (req, res) {
     let saran = await models.kotaksaran.findAll({
       include: [
         {
-          model: models.siswa, // Ubah dari 'siswaakun' menjadi 'siswa'
+          model: models.siswa, // Ubah dari 'siswa' menjadi 'siswa'
           attributes: ['NIS'],
-          as: 'siswa', // Ubah dari 'siswaakun' menjadi 'siswa'
+          as: 'siswa', // Ubah dari 'siswa' menjadi 'siswa'
           include: [
             {
               model: models.akun,
               attributes: ['nama'],
-              as: 'akunsiswa',
+              as: 'akun',
             },
           ],
         },
@@ -27,7 +27,7 @@ controller.getAll = async function (req, res) {
       judulBuku: item.judulBuku,
 
       pengarang: item.pengarang,
-      nama: item.siswa.akunsiswa.nama,
+      nama: item.siswa.akun.nama,
     }))
 
     if (transformedData.length > 0) {
@@ -65,7 +65,7 @@ controller.getOne = async function (req, res) {
             {
               model: models.akun,
               attributes: ['nama'],
-              as: 'akunsiswa',
+              as: 'akun',
             },
           ],
         },

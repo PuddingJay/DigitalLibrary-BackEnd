@@ -1,0 +1,40 @@
+GET http://localhost:3005/admin/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSHVzbmkiLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjkzNTAyNTc0LCJleHAiOjE2OTM1MDI1OTR9.VPBwgYyN43ztDAElD22D3S6yzeTeyfdwYZndO4k6Pn8
+
+###
+POST http://localhost:3005/admin
+Content-Type: application/json
+
+{
+  "nama" : "Admin Utama",
+  "username": "superadmin",
+  "password": "perpustakaan1945", 
+  "confPassword": "perpustakaan1945",
+  "role" : "superadmin"
+}
+
+###
+POST http://localhost:3005/login
+Content-Type: application/json
+
+{
+  "username" : "admin",
+  "password" : "perpustakaan1945"
+}
+
+###
+GET http://localhost:3005/token/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSHVzbmkiLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjkzMzg2MjM2LCJleHAiOjE2OTM0NzI2MzZ9.y_I1milBqX_9YreM-NXl22zFavTt4zGLA2xjq3XmDtU
+
+###
+DELETE http://localhost:3005/logout/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSHVzbmkiLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjkzMzUzODkzLCJleHAiOjE2OTM0NDAyOTN9.MYh10W57Prd0CMyKOP-rZunucxYpU6LBHWWeGkAxulI
+
+###
+POST http://localhost:3005/admin
+Content-Type: application/json
+
+{
+  "name" : "Windu",
+  "username": "admin4",
+  "password": "perpustakaan1945", 
+  "confPassword": "perpustakaan1945"
+}

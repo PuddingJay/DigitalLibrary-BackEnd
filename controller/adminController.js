@@ -50,7 +50,7 @@ controller.register = async (req, res) => {
     await models.akun.create({
       nama: nama,
       username: username,
-      role: role,
+      role: role || 'admin',
       password: hashPassword,
     })
     res.json({

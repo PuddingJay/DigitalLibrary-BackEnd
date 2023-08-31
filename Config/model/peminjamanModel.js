@@ -22,6 +22,12 @@ const meminjam = db.define(
         key: 'NIS',
       }
     },
+    idPeminjaman: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
+    },
     tglPinjam: DataTypes.DATE,
     batasPinjam: DataTypes.DATE,
     tglKembali: DataTypes.DATE,

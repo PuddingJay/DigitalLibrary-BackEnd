@@ -35,4 +35,7 @@ const bookingPinjam = db.define(
 
 bookingPinjam.removeAttribute("id");
 
+bookingPinjam.belongsTo(buku, { foreignKey: 'Buku_kodeBuku', as: 'buku' });
+bookingPinjam.belongsTo(siswa, { foreignKey: 'Siswa_NIS', as: 'siswa' });
+
 module.exports = bookingPinjam;

@@ -7,6 +7,7 @@ const pengunjung = db.define(
     idPengunjung: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     nama: Sequelize.STRING,
     tipePengunjung: Sequelize.STRING,
+    asal: Sequelize.STRING,
     waktuKunjung: Sequelize.DATE,
   },
   {

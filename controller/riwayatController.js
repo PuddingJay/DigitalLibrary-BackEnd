@@ -23,7 +23,7 @@ controller.getAll = async function (req, res) {
             {
               model: models.akun,
               attributes: ['nama'],
-              as: 'akunsiswa',
+              as: 'akun',
             },
           ],
         },
@@ -32,7 +32,7 @@ controller.getAll = async function (req, res) {
 
     const transformedData = riwayat.map((item) => ({
       siswa_NIS: item.siswa_NIS,
-      nama: item.siswa.akunsiswa.nama,
+      nama: item.siswa.akun.nama,
       idRiwayat: item.idRiwayat,
       buku_kodeBuku: item.buku_kodeBuku,
       judul: item.buku.judul,
@@ -81,7 +81,7 @@ controller.getOne = async function (req, res) {
             {
               model: models.akun,
               attributes: ['nama'],
-              as: 'akunsiswa',
+              as: 'akun',
             },
           ],
         },
@@ -90,7 +90,7 @@ controller.getOne = async function (req, res) {
 
     const transformedData = riwayatbaca.map((item) => ({
       siswa_NIS: item.siswa_NIS,
-      nama: item.siswa.akunsiswa.nama,
+      nama: item.siswa.akun.nama,
       idRiwayat: item.idRiwayat,
       buku_kodeBuku: item.buku_kodeBuku,
       judul: item.buku.judul,

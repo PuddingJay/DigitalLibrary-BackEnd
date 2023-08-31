@@ -1,0 +1,15 @@
+###
+POST http://localhost:3005/add-data-pengunjung
+Content-Type: application/json
+
+{
+  "nama": "Sekar",
+  "tipePengunjung": "siswa",
+  "asal": "10-1"
+}
+
+###
+GET http://localhost:3005/data-pengunjung
+
+###
+DELETE http://localhost:3005/data-pengunjung/31

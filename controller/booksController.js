@@ -72,17 +72,50 @@ controller.getOne = async function (req, res) {
     console.log(req.params)
     let buku = await models.buku.findAll({
       where: {
-        [Op.or]: [
-          {
-            kodeBuku: req.params.kodeBuku,
-          },
-        ],
+        kodeBuku: req.params.kodeBuku,
       },
+      include: [{ model: models.kategoribuku, as: 'kategori' }],
     })
-    if (buku.length > 0) {
+
+    const flattenedBukuData = buku.map((item) => {
+      const {
+        kodeBuku,
+        judul,
+        penulis,
+        ringkasan,
+        tahunTerbit,
+        keterangan,
+        jumlah,
+        tersedia,
+        cover,
+        berkasBuku,
+        createdAt,
+        likes,
+        isApproval,
+      } = item.dataValues
+      const { nama } = item.kategori.dataValues
+      return {
+        kodeBuku,
+        judul,
+        penulis,
+        ringkasan,
+        tahunTerbit,
+        keterangan,
+        jumlah,
+        tersedia,
+        cover,
+        berkasBuku,
+        createdAt,
+        likes,
+        isApproval,
+        kategori: nama,
+      }
+    })
+
+    if (flattenedBukuData.length > 0) {
       res.status(200).json({
         message: 'Data buku ditemukan',
-        data: buku,
+        data: flattenedBukuData,
       })
     } else {
       res.status(200).json({
@@ -188,7 +221,7 @@ controller.post = async function (req, res) {
   } catch (error) {
     console.log(error)
     res.status(500).json({
-      message: error.message,
+      message: error,
     })
   }
 }

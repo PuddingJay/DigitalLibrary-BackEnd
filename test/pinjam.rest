@@ -1,0 +1,36 @@
+###
+GET http://localhost:3005/peminjaman
+
+###
+POST http://localhost:3005/peminjaman
+Content-Type: application/json
+
+{ 
+    "Buku_kodeBuku" : "1.2.2",
+    "Siswa_NIS": "105219036",
+    "tglPinjam" : "2023-08-28",
+    "batasPinjam": "2023-08-30",
+    "tglKembali": "",
+    "status": "Belum Dikembalikan",
+    "denda": null
+}
+
+###
+PUT http://localhost:3005/peminjaman/10
+Content-Type: application/json
+
+{ 
+    "Buku_kodeBuku" : "1.2.10",
+    "Siswa_NIS": "105219036",
+    "tglPinjam" : "2023-07-29",
+    "batasPinjam": "2023-08-5",
+    "tglKembali": null,
+    "status": "Belum Dikembalikan",
+    "denda": null
+}
+
+###
+DELETE http://localhost:3005/peminjaman/11
+
+###
+GET http://localhost:3005/peminjaman/15151

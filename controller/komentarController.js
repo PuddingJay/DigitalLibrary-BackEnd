@@ -22,7 +22,7 @@ controller.getAll = async function (req, res) {
             {
               model: models.akun,
               attributes: ['nama'],
-              as: 'akunsiswa',
+              as: 'akun',
             },
           ],
         },
@@ -36,7 +36,7 @@ controller.getAll = async function (req, res) {
 
       createdAt: item.createdAt,
       judul: item.buku.judul,
-      nama: item.komentarsiswa.akunsiswa.nama,
+      nama: item.komentarsiswa.akun.nama,
     }))
 
     if (transformedData.length > 0) {
@@ -78,7 +78,7 @@ controller.getOne = async function (req, res) {
             {
               model: models.akun,
               attributes: ['nama'],
-              as: 'akunsiswa',
+              as: 'akun',
             },
           ],
         },
@@ -93,7 +93,7 @@ controller.getOne = async function (req, res) {
 
       createdAt: item.createdAt,
       judul: item.buku.judul,
-      nama: item.komentarsiswa.akunsiswa.nama,
+      nama: item.komentarsiswa.akun.nama,
     }))
 
     if (transformedData.length > 0) {

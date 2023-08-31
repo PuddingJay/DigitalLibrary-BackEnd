@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 const { DataTypes } = require('sequelize')
 const db = require('../database/db.js')
 
