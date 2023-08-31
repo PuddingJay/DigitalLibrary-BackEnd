@@ -11,8 +11,8 @@ const path = require('path')
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     console.log(file)
-    if (file.fieldname == 'cover_buku') cb(null, './asset/cover') // Menyimpan file di folder
-    if (file.fieldname == 'file_ebook') cb(null, './asset/file_ebook')
+    if (file.fieldname == 'cover') cb(null, './asset/cover') // Menyimpan file di folder
+    if (file.fieldname == 'berkasBuku') cb(null, './asset/file_ebook')
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname) // Mengatur nama file dengan timestamp
@@ -43,17 +43,6 @@ const fileFilter = (req, file, cb) => {
   }
 }
 const uploadExcel = multer({ dest: 'uploads/', fileFilter: fileFilter })
-
-const storagePdf = multer.diskStorage({
-  destination: function (req, filePdf, cb) {
-    cb(null, './asset/file_ebook') // Menyimpan file di folder
-  },
-  filename: function (req, filePdf, cb) {
-    cb(null, Date.now() + '-' + filePdf.originalname) // Mengatur nama file dengan timestamp
-  },
-})
-
-const uploadPdf = multer({ storage: storagePdf })
 
 router.get('/book/:kodeBuku', controller.booksController.getOne)
 router.get('/book/pdf/:kodeBuku', controller.booksController.getPdf)
