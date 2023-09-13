@@ -15,6 +15,7 @@ const siswa = db.define(
     },
     jumlahPinjam: DataTypes.INTEGER,
     waktuPinjam: DataTypes.DATE,
+    akun_idAkun: DataTypes.INTEGER,
   },
   {
     freezeTableName: true,

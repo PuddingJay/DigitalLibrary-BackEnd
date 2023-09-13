@@ -126,6 +126,10 @@ controller.updateAdmin = async (req, res) => {
       return res.status(404).json({ message: 'Admin not found' })
     }
 
+    if (!prevPassword || !newPassword || !confirmNewPassword) {
+      return res.status(400).json({ message: 'Semua kolom harus kata sandi diisi' })
+    }
+
     if (newPassword) {
       if (!prevPassword) {
         return res.status(400).json({ message: 'Password sebelumnya harus disediakan' })

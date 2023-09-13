@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 const models = require('../Config/model/index.js')
 const { Op } = require('sequelize')
 const fs = require('fs')
@@ -162,6 +161,7 @@ controller.getLikes = async function (req, res) {
   try {
     // Fetch buku from the database and sort by 'likes' in descending order
     const buku = await models.buku.findAll({
+      where: { isApproval: 'Disetujui' }, // Filter buku yang memiliki isApproval = 'Disetujui'
       order: [['likes', 'DESC']],
       limit: 7,
     })
@@ -193,6 +193,7 @@ controller.post = async function (req, res) {
         message: 'Kategori tidak ditemukan',
       })
     }
+    let isApproval = req.files.berkasBuku ? 'Belum Disetujui' : 'Disetujui'
 
     let book = await models.buku.create({
       kodeBuku: req.body.kodeBuku,
@@ -206,7 +207,7 @@ controller.post = async function (req, res) {
       tersedia: req.body.jumlah,
       cover: coverPath,
       berkasBuku: ebookPath,
-      isApproval: req.body.isApproval,
+      isApproval: isApproval,
       createdAt: new Date(),
     })
 

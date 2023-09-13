@@ -12,6 +12,10 @@ controller.refreshToken = async (req, res) => {
     }
 
     const siswa = await models.akun.findOne({
+      include: [{
+        model: models.siswa,
+        as: 'siswa'
+      }],
       where: {
         refreshToken: refreshToken,
         role: 'siswa',
@@ -27,8 +31,10 @@ controller.refreshToken = async (req, res) => {
       if (err) {
         return res.status(403).json({ message: 'Invalid refreshToken!!' })
       }
+      console.log(siswa);
 
-      const siswaId = siswa.siswa_NIS
+      const siswaId = siswa.siswa.NIS
+      console.log(siswaId);
       const siswaUsername = siswa.username
       const nama = siswa.nama
       const accessToken = jwt.sign(

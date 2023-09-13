@@ -51,7 +51,7 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3005/siswa/20
+DELETE http://localhost:3005/siswa/105219070
 
 ###
 POST http://localhost:3005/siswa-from-excel

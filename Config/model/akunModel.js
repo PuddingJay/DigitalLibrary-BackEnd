@@ -8,13 +8,13 @@ const akun = db.define(
     idAkun: {
       type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     nama: DataTypes.STRING,
     username: DataTypes.STRING,
     password: DataTypes.STRING,
     refreshToken: DataTypes.TEXT,
     role: DataTypes.ENUM('admin', 'superadmin', 'siswa'),
-    siswa_NIS: DataTypes.INTEGER,
   },
   {
     freezeTableName: true,
