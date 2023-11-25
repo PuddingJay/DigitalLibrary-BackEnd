@@ -1,13 +1,38 @@
-import booksModel from "./booksModel.js";
-import siswaModel from "./siswaModel.js";
-import peminjamanModel from "./peminjamanModel.js";
-import adminModel from './adminModel.js';
+const booksModel = require('./booksModel')
+const siswaModel = require('./siswaModel')
+const peminjamanModel = require('./peminjamanModel')
+const saranModel = require('./saranModel.js')
+const komentarModel = require('./komentarModel')
+const riwayatModel = require('./riwayatModel')
+const kategoribuku = require('./kategoriModel')
+const bookingPinjamModel = require('./bookingPinjamModel')
+const pengunjungModel = require('./pengunjungModel')
+const akunModel = require('./akunModel.js')
 
 const models = {
-  books: booksModel,
+  buku: booksModel,
   siswa: siswaModel,
-  peminjaman: peminjamanModel,
-  admin: adminModel,
-};
+  meminjam: peminjamanModel,
+  kotaksaran: saranModel,
+  komentar: komentarModel,
+  riwayatbaca: riwayatModel,
+  kategoribuku: kategoribuku,
+  bookingPinjam: bookingPinjamModel,
+  pengunjung: pengunjungModel,
+  akun: akunModel,
+}
 
-export default models;
+siswaModel.hasOne(akunModel, {
+  foreignKey: 'idAkun',
+  sourceKey: 'akun_idAkun',
+  as: 'akun',
+})
+
+akunModel.belongsTo(siswaModel, {
+  foreignKey: 'idAkun',
+  targetKey: 'akun_idAkun',
+  as: 'siswa',
+})
+
+
+module.exports = models

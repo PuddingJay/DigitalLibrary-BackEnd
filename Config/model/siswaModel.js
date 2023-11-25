@@ -1,18 +1,21 @@
-import Sequelize from "sequelize";
-import db from "../database/db.js";
-
+/* eslint-disable prettier/prettier */
+const { DataTypes } = require('sequelize')
+const db = require('../database/db.js')
 
 const siswa = db.define(
-  "siswa",
+  'siswa',
   {
-    NIS: { type: Sequelize.INTEGER, primaryKey: true },
-    Nama: Sequelize.STRING,
-    password: Sequelize.TEXT,
-    Kelas: Sequelize.STRING,
-    Jurusan: Sequelize.STRING,
-    jumlahPinjam: Sequelize.INTEGER,
-    waktuPinjam: Sequelize.DATE,
-    refreshToken: Sequelize.TEXT,
+    NIS: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
+    status: {
+      type: DataTypes.ENUM('Aktif', 'NonAktif'),
+      defaultValue: 'Aktif',
+    },
+    jumlahPinjam: DataTypes.INTEGER,
+    waktuPinjam: DataTypes.DATE,
+    akun_idAkun: DataTypes.INTEGER,
   },
   {
     freezeTableName: true,
@@ -20,6 +23,6 @@ const siswa = db.define(
   },
 )
 
-siswa.removeAttribute("id");
+siswa.removeAttribute('id')
 
-export default siswa;
+module.exports = siswa

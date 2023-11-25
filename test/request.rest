@@ -1,0 +1,51 @@
+GET http://localhost:3005/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjowLCJuYW1lIjoiV2luZHUiLCJ1c2VybmFtZSI6ImFkbWluNCIsImlhdCI6MTY4ODYyMzQ3MywiZXhwIjoxNjg4NjIzNDkzfQ.Y8B-F4R8gdw8mO0im8aFMchTs8ddg5JHzwPhny29LyI
+
+///////////////////////////////////////////////// top buku
+###
+GET http://localhost:3005/topBooks
+
+###
+PUT http://localhost:3005/updateTop/30
+Content-Type: application/json
+
+{ 
+    "likes" : "1"
+}
+
+###
+GET http://localhost:3005/kotaksaran
+
+###
+POST http://localhost:3005/kotaksaran
+Content-Type: application/json
+
+{
+    "NIS": 105219001,
+    "pemberiSaran" : "Arsyad",
+    "saranJudulBuku" : "Komik lucu bahasa indonesia",
+    "saranPengarangBuku" : "Natashi kisimoto"
+}
+
+###
+GET http://localhost:3005/kategori
+
+###
+POST http://localhost:3005/kategori
+Content-Type: application/json
+
+{
+"nama" : "Matematika"
+}
+
+###
+POST http://localhost:3005/komentar
+Content-Type: application/json
+
+{
+    "NIS": 105219001,
+    "namaKomentator" : "Arsyad",
+    "kodeBuku" : "1.2.4",
+    "judulBuku" : "Bahasa Indonesia",
+    "textKomentar" : "bukunya keren abis"
+}

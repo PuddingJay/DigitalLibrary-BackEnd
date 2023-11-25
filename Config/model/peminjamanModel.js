@@ -1,20 +1,39 @@
-import Sequelize from "sequelize";
-import db from "../database/db.js";
-import books from "./booksModel.js"
+const { DataTypes } = require("sequelize");
+const db = require("../database/db.js");
+const buku = require("./booksModel.js");
+const siswa = require("./siswaModel.js");
 
-const peminjaman = db.define(
-  "peminjaman",
+const meminjam = db.define(
+  "meminjam",
   {
-    idPeminjaman: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    kodeBuku: Sequelize.STRING,
-    NIS: Sequelize.INTEGER,
-    namaPeminjam: Sequelize.STRING,
-    judulBuku: Sequelize.STRING,
-    tglPinjam: Sequelize.DATE,
-    batasPinjam: Sequelize.DATE,
-    tglKembali: Sequelize.DATE,
-    status: Sequelize.STRING,
-    denda: Sequelize.STRING,
+    Buku_kodeBuku: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      reference: {
+        model: buku,
+        key: 'kodeBuku',
+      }
+    },
+    Siswa_NIS: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      reference: {
+        model: siswa,
+        key: 'NIS',
+      }
+    },
+    idPeminjaman: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    tglPinjam: DataTypes.DATE,
+    batasPinjam: DataTypes.DATE,
+    tglKembali: DataTypes.DATE,
+    status: DataTypes.STRING,
+    denda: DataTypes.STRING,
+    createdAt: DataTypes.DATE,
   },
   {
     freezeTableName: true,
@@ -22,15 +41,19 @@ const peminjaman = db.define(
   }
 );
 
-peminjaman.hasMany(books, {
-  foreignKey: 'kodeBuku',
-  as: 'books'
-})
-books.belongsTo(peminjaman, {
-  foreignKey: 'kodeBuku',
-  as: 'peminjaman'
-})
+meminjam.belongsTo(buku, { foreignKey: 'Buku_kodeBuku', as: 'buku' });
+meminjam.belongsTo(siswa, { foreignKey: 'Siswa_NIS', as: 'siswa' });
 
-peminjaman.removeAttribute("id");
+// peminjaman.sync()
+// peminjaman.hasMany(books, {
+//   foreignKey: 'kodeBuku',
+//   as: 'books'
+// });
+// books.belongsTo(peminjaman, {
+//   foreignKey: 'kodeBuku',
+//   as: 'peminjaman'
+// });
 
-export default peminjaman;
+meminjam.removeAttribute("id");
+
+module.exports = meminjam;
